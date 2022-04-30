@@ -1,3 +1,18 @@
+const chalk = require('chalk')
+const { Wallet } = require('../../utils/database')
+const web3 = require('../../utils/web3')
+
+async function createWallet(name) {
+  const account = web3.createAccount()
+  // await Wallet.sync({ force: true })
+  await Wallet.create({ walletName: name, privateKey: account.privateKey })
+
+  console.log(chalk.green('Wallet created!\n'))
+  console.log(`Address   : ${account.address}\nPrivate key: ${account.privateKey}\n`)
+  console.log('Please backup the private key in a safe place.')
+}
+
+
 exports.command = 'create'
 exports.desc = 'Create new wallet or account.'
 exports.builder = {
@@ -10,5 +25,5 @@ exports.builder = {
 }
 
 exports.handler = function (argv) {
-  console.log('*create wallet', argv.dir)
+  createWallet(argv.name).then()
 }

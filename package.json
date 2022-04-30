@@ -13,8 +13,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "boxen": "^6.2.1",
-    "chalk": "^5.0.1",
+    "boxen": "^4.2.0",
+    "chalk": "2.4",
     "sequelize": "^6.19.0",
     "sqlite3": "^5.0.6",
     "web3": "^1.7.3",
