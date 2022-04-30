@@ -13,6 +13,10 @@ const Wallet = sequelize.define('Wallet', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  address: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
   privateKey: {
     type: DataTypes.TEXT,
     allowNull: false

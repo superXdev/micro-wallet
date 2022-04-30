@@ -5,7 +5,7 @@ const web3 = require('../../utils/web3')
 async function createWallet(name) {
   const account = web3.createAccount()
   // await Wallet.sync({ force: true })
-  await Wallet.create({ walletName: name, privateKey: account.privateKey })
+  await Wallet.create({ walletName: name, address: account.address, privateKey: account.privateKey })
 
   console.log(chalk.green('Wallet created!\n'))
   console.log(`Address   : ${account.address}\nPrivate key: ${account.privateKey}\n`)
