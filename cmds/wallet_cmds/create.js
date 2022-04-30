@@ -1,14 +1,18 @@
 const chalk = require('chalk')
 const { Wallet } = require('../../utils/database')
 const web3 = require('../../utils/web3')
+const crypto = require('../../utils/crypto')
+const inquirer = require('inquirer')
 
-async function createWallet(name) {
+
+async function createWallet(name, password) {
   const account = web3.createAccount()
-  // await Wallet.sync({ force: true })
-  await Wallet.create({ walletName: name, address: account.address, privateKey: account.privateKey })
+  const encryptedPrivateKey = crypto.encryptData(account.privateKey, password)
+
+  await Wallet.create({ walletName: name, address: account.address, privateKey: encryptedPrivateKey.concatenned })
 
   console.log(chalk.green('Wallet created!\n'))
-  console.log(`Address   : ${account.address}\nPrivate key: ${account.privateKey}\n`)
+  console.log(`Address     : ${account.address}\nPrivate key : ${account.privateKey}\n`)
   console.log('Please backup the private key in a safe place.')
 }
 
@@ -21,9 +25,26 @@ exports.builder = {
     type: 'string',
     alias: 'n',
     desc: 'Set your wallet name or identifier'
-  }
+  },
 }
 
 exports.handler = function (argv) {
-  createWallet(argv.name).then()
+  const questions = [
+   {
+     type: 'password',
+     name: 'password',
+     message: 'Set password:',
+     validate(value) {
+       if (value.length >= 8) {
+        return true;
+       }
+
+       return 'Password minimum length is 8 characters';
+     }
+  }]
+
+  inquirer.prompt(questions).then((answers) => {
+    createWallet(argv.name, answers.password).then()
+  })
+  
 }

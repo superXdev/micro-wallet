@@ -16,6 +16,8 @@
     "boxen": "^4.2.0",
     "chalk": "2.4",
     "cli-table": "^0.3.11",
+    "crypto": "^1.0.1",
+    "inquirer": "^8.2.4",
     "sequelize": "^6.19.0",
     "sqlite3": "^5.0.6",
     "web3": "^1.7.3",
