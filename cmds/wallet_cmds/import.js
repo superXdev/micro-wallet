@@ -51,6 +51,18 @@ exports.handler = function (argv) {
 
          return 'Minimum password length is 8';
        },
+   },
+     {
+       type: 'password',
+       name: 'cpassword',
+       message: "Re-enter password:",
+       validate(value, prev) {
+         if (value === prev.password) {
+           return true;
+         }
+
+         return 'Password does not match';
+       },
    }]
 
    console.log(chalk.blue.bold('Import your wallet\n'))
@@ -58,6 +70,6 @@ exports.handler = function (argv) {
    inquirer.prompt(questions).then((answers) => {
       answers.address = web3.getAddress(answers.privateKey)
       answers.privateKey = crypto.encryptData(answers.privateKey, answers.password).concatenned
-      importWallet(answers).then(() => console.log(chalk.green('Successfully imported')))
+      importWallet(answers).then(() => console.log(chalk.green('\nSuccessfully imported')))
    })
 }

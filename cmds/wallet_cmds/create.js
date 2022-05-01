@@ -41,7 +41,20 @@ exports.handler = function (argv) {
 
        return 'Password minimum length is 8 characters';
      }
+  },{
+     type: 'password',
+     name: 'cpassword',
+     message: 'Re-type password:',
+     validate(value, prev) {
+       if (value === prev.password) {
+        return true;
+       }
+
+       return 'Password does not match';
+     }
   }]
+
+  console.log(chalk.blue.bold('Create new wallet\n'))
 
   inquirer.prompt(questions).then((answers) => {
     createWallet(argv.name, answers.password).then()
