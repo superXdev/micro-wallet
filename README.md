@@ -5,10 +5,10 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
 
 ## Feature list
 - [ ] wallet management
-  - [ ] list
+  - [x] list
   - [ ] create
-  - [ ] import
-  - [ ] export
+  - [x] import
+  - [x] export
   - [ ] remove
 - [ ] networks management
   - [ ] list
