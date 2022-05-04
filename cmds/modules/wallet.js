@@ -1,11 +1,10 @@
-const chalk = require('chalk')
 const { Wallet } = require('../../utils/database')
 const web3 = require('../../utils/web3')
 const crypto = require('../../utils/crypto')
 
 
 // get list of all wallet
-async function getWalletList(walletTable) {
+async function getWalletList() {
    const result = await Wallet.findAll()
 
    return result
