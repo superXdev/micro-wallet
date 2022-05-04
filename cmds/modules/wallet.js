@@ -19,9 +19,7 @@ async function createWallet(name, password) {
 
   await Wallet.create({ walletName: name, address: account.address, privateKey: encryptedPrivateKey.concatenned })
 
-  console.log(chalk.green('\nWallet created!\n'))
-  console.log(`Address     : ${account.address}\nPrivate key : ${account.privateKey}\n`)
-  console.log('Please backup the private key in a safe place.')
+  return account
 }
 
 // for checking by wallet name
@@ -50,7 +48,7 @@ async function exportWallet(walletName, password) {
 
 // import wallet
 async function importWallet(data) {
-   await Wallet.create(data)
+   return await Wallet.create(data)
 }
 
 // delete a wallet

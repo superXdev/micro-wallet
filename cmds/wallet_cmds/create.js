@@ -3,8 +3,6 @@ const inquirer = require('inquirer')
 const { createWallet, isWalletExists } = require('../modules/wallet')
 
 
-
-
 exports.command = 'create'
 exports.desc = 'Create new wallet or account.'
 exports.builder = {
@@ -49,7 +47,11 @@ exports.handler = function (argv) {
       console.log(chalk.blue.bold('Create new wallet\n'))
 
       inquirer.prompt(questions).then((answers) => {
-        createWallet(argv.name, answers.password).then()
+        createWallet(argv.name, answers.password).then((account) => {
+          console.log(chalk.green('\nWallet created!\n'))
+          console.log(`Address     : ${account.address}\nPrivate key : ${account.privateKey}\n`)
+          console.log('Please backup the private key in a safe place.')
+        })
       })
     }
   })
