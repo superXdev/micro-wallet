@@ -14,16 +14,6 @@ yargs
    })
    .commandDir('cmds')
    .demandCommand()
-   .option('network', {
-      alias: 'n',
-      describe: 'Select network blockchain',
-      type: 'string'
-   })
-   .option('skip', {
-      alias: 'y',
-      describe: 'Skip confirmation dialog',
-      boolean: true
-   })
    .help()
    .argv
 

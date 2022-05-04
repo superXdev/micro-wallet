@@ -4,12 +4,12 @@
 A simple CLI application based crypto wallet with advanced capabilities, micro-wallet supports multiple networks with the ability to make transactions between networks easy and simple with a few commands
 
 ## Feature list
-- [ ] wallet management
+- [x] wallet management
   - [x] list
-  - [ ] create
+  - [x] create
   - [x] import
   - [x] export
-  - [ ] remove
+  - [x] remove
 - [ ] networks management
   - [ ] list
   - [ ] add

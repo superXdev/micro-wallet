@@ -5,12 +5,21 @@ const chalk = require('chalk')
 
 exports.command = 'setup'
 exports.desc = 'initialize all configuration'
+exports.builder = {
+   reset: {
+      type: 'boolean',
+      alias: 'r',
+      desc: 'Hard reset all configuration'
+  },
+}
 
 exports.handler = function (argv) {
-   if(!fs.existsSync(`${rootPath()}/user.db`)) {
+   if(argv.reset || !fs.existsSync(`${rootPath()}/user.db`)) {
       sequelize.sync({ force: true }).then(() => console.log(chalk.yellow.bold("Everything is ready!")))
    } else {
       console.log("Already setting up")
    }
+
+   
 
 }

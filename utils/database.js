@@ -23,7 +23,27 @@ const Wallet = sequelize.define('Wallet', {
   }
 })
 
+const Network = sequelize.define('Network', {
+  networkName: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  rpcURL: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  currencySymbol: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  explorerURL: {
+    type: DataTypes.STRING,
+    allowNull: true
+  }
+})
+
 module.exports = {
 	sequelize,
-	Wallet
+	Wallet,
+  Network
 }
