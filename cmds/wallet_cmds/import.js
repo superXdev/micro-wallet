@@ -1,12 +1,10 @@
 const chalk = require('chalk')
-const { Wallet } = require('../../utils/database')
+const { importWallet } = require('../modules/wallet')
 const web3 = require('../../utils/web3')
 const crypto = require('../../utils/crypto')
 const inquirer = require('inquirer')
 
-async function importWallet(data) {
-   await Wallet.create(data)
-}
+
 
 exports.command = 'import'
 exports.desc = 'Import wallet with private key.'

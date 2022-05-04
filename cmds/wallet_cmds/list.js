@@ -1,13 +1,6 @@
-const { Wallet } = require('../../utils/database')
+const { getWalletList } = require('../modules/wallet')
 const Table = require('cli-table')
 const chalk = require('chalk')
-
-
-async function getWalletList(walletTable) {
-   const result = await Wallet.findAll()
-
-   return result
-}
 
 
 exports.command = 'list'

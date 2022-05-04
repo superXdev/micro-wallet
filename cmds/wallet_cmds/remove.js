@@ -1,23 +1,6 @@
 const chalk = require('chalk')
-const { Wallet } = require('../../utils/database')
+const { isWalletExists, removeWallet } = require('../modules/wallet')
 const inquirer = require('inquirer')
-
-
-async function isWalletExist(walletName) {
-   const result = await Wallet.findOne({ where: { walletName: walletName } })
-
-   if(result === null) {
-      return false
-   }
-
-   return true
-}
-
-
-async function removeWallet(walletName) {
-   const result = await Wallet.destroy({ where: { walletName: walletName } })
-   return result
-}
 
 
 exports.command = 'remove'
@@ -31,7 +14,7 @@ exports.builder = {
   }
 }
 exports.handler = function (argv) {
-   isWalletExist(argv.name).then((result) => {
+   isWalletExists(argv.name).then((result) => {
       if(result === false) {
          console.log(chalk.white.bold.bgRed('Wallet is not found!'))
       } else {

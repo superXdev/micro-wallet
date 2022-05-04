@@ -1,20 +1,8 @@
 const chalk = require('chalk')
-const { Wallet } = require('../../utils/database')
-const web3 = require('../../utils/web3')
-const crypto = require('../../utils/crypto')
 const inquirer = require('inquirer')
+const { createWallet, isWalletExists } = require('../modules/wallet')
 
 
-async function createWallet(name, password) {
-  const account = web3.createAccount()
-  const encryptedPrivateKey = crypto.encryptData(account.privateKey, password)
-
-  await Wallet.create({ walletName: name, address: account.address, privateKey: encryptedPrivateKey.concatenned })
-
-  console.log(chalk.green('Wallet created!\n'))
-  console.log(`Address     : ${account.address}\nPrivate key : ${account.privateKey}\n`)
-  console.log('Please backup the private key in a safe place.')
-}
 
 
 exports.command = 'create'
@@ -54,10 +42,18 @@ exports.handler = function (argv) {
      }
   }]
 
-  console.log(chalk.blue.bold('Create new wallet\n'))
+  isWalletExists(argv.name).then(result => {
+    if(result === true) {
+      console.log(chalk.red.bold('Wallet name already exists'))
+    } else {
+      console.log(chalk.blue.bold('Create new wallet\n'))
 
-  inquirer.prompt(questions).then((answers) => {
-    createWallet(argv.name, answers.password).then()
+      inquirer.prompt(questions).then((answers) => {
+        createWallet(argv.name, answers.password).then()
+      })
+    }
   })
+
+  
   
 }

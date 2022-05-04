@@ -1,20 +1,6 @@
 const chalk = require('chalk')
-const { Wallet } = require('../../utils/database')
-const crypto = require('../../utils/crypto')
+const { exportWallet } = require('../modules/wallet')
 const inquirer = require('inquirer')
-
-
-async function exportWallet(walletName, password) {
-   const account = await Wallet.findOne({ where: { walletName: walletName } })
-
-   if(account === null) {
-      return null
-   }
-
-   return {
-      privateKey: crypto.decryptData(account.privateKey, password)
-   }
-}
 
 
 exports.command = 'export'
@@ -49,7 +35,7 @@ exports.handler = function (argv) {
             console.log(chalk.white.bold.bgRed('\nPassword is wrong!'))
          } else {
             exported.privateKey = ((exported.privateKey.slice(0,2) == "0x") ? exported.privateKey : "0x" + exported.privateKey)
-            console.log(`Your private key: ${chalk.white.bold(exported.privateKey)}`)
+            console.log(`\nYour private key: ${chalk.white.bold(exported.privateKey)}`)
          }
          
       })
