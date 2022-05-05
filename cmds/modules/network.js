@@ -1,6 +1,7 @@
 const { Network } = require('../../utils/database')
 const Web3 = require('web3')
 const Web3HttpProvider = require('web3-providers-http')
+const validator = require('validator')
 
 
 const asyncCallWithTimeout = async (asyncPromise, timeLimit) => {
@@ -43,7 +44,59 @@ async function getConnectionStatus(rpc) {
    }
 }
 
+// add new network
+async function addNetwork(name, rpc, symbol, explorer, testnet) {
+   if(!validator.isURL(rpc, { require_protocol: true, require_host: true })) {
+      return {
+         success: false,
+         message: "URL is not valid"
+      }
+   }
+
+   try {
+      const data = {
+         networkName: name,
+         rpcURL: rpc,
+         currencySymbol: symbol,
+         isTestnet: testnet
+      }
+
+      if(explorer !== undefined) {
+         data.explorerURL = explorer
+      }
+
+      await Network.create(data)
+
+      return {
+         success: true
+      }
+   } catch(err) {
+      return {
+         success: false,
+         message: err.message
+      }
+   }
+}
+
+// check if network is already exists
+async function isNetworkExists(name, symbol) {
+   const result = await Network.findOne({ where: { networkName: name, currencySymbol: symbol } })
+
+   if(result === null) {
+      return false
+   }
+
+   return true
+}
+
+// validation of url
+function validationURL(url) {
+   return url.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g)
+}
+
 module.exports = {
 	getNetworkList,
-   getConnectionStatus
+   getConnectionStatus,
+   addNetwork,
+   isNetworkExists
 }
