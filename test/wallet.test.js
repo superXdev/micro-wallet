@@ -2,11 +2,12 @@ const { expect } = require("chai");
 const fs = require("fs");
 const wallet = require('../cmds/modules/wallet');
 const { sequelize } = require('../utils/database');
-const web3 = require('../utils/web3')
+const web3 = require('../utils/web3');
+const { runSetup } = require('../cmds/modules/setup');
 
 describe("Wallet modules", () => {
-	beforeEach((done) => {
-		sequelize.sync({ force: true }).then(() => done())
+	before((done) => {
+		runSetup().then(() => done())
 		
 	})
 
@@ -24,13 +25,11 @@ describe("Wallet modules", () => {
 	})
 
 	it("isWalletExists: should return true if exists", async () => {
-		await wallet.createWallet('test', '123')
 		const result = await wallet.isWalletExists('test')
 		expect(result).to.be.true
 	})
 
 	it("exportWallet: should return encrypted privateKey", async () => {
-		await wallet.createWallet('test', '123')
 		const result = await wallet.exportWallet('test', '123')
 		
 		expect(result).to.have.own.property('privateKey')
@@ -38,7 +37,7 @@ describe("Wallet modules", () => {
 
 	it("importWallet: should return an object", async () => {
 		const account = web3.createAccount()
-		account.walletName = 'test'
+		account.walletName = 'test2'
 		account.password = 'password'
 		const result = await wallet.importWallet(account)
 		
@@ -46,7 +45,6 @@ describe("Wallet modules", () => {
 	})
 
 	it("removeWallet: should return an object", async () => {
-		await wallet.createWallet('test', '123')
 		const result = await wallet.removeWallet('test')
 		
 		expect(result).to.be.equal(1)

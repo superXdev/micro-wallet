@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx mocha test/**/*.js"
+    "test": "npx mocha test/**/*.js -r dotenv/config"
   },
   "bin": {
     "microw": "cli.js"
@@ -17,6 +17,7 @@
     "chalk": "2.4",
     "cli-table": "^0.3.11",
     "crypto-js": "^4.1.1",
+    "dotenv": "^16.0.0",
     "inquirer": "^8.2.4",
     "listr": "^0.14.3",
     "sequelize": "^6.19.0",

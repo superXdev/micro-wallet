@@ -4,7 +4,7 @@ const { rootPath } = require('./path')
 
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: `${rootPath()}/user.db`,
+  storage: `${rootPath()}/${(process.env.ENVIRONMENT  =="debug") ? 'user.test.db' : 'user.db'}`,
   logging: false
 })
 

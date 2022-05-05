@@ -1,2 +1,3 @@
 node_modules/
 user.db
+user.test.db
