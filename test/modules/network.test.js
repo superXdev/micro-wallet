@@ -1,6 +1,6 @@
 const { expect } = require("chai");
-const network = require('../cmds/modules/network');
-const { runSetup } = require('../cmds/modules/setup');
+const network = require('../../cmds/modules/network');
+const { runSetup } = require('../../cmds/modules/setup');
 
 
 describe("Network modules", () => {

@@ -1,9 +1,8 @@
 const { expect } = require("chai");
 const fs = require("fs");
-const wallet = require('../cmds/modules/wallet');
-const { sequelize } = require('../utils/database');
-const web3 = require('../utils/web3');
-const { runSetup } = require('../cmds/modules/setup');
+const wallet = require('../../cmds/modules/wallet');
+const web3 = require('../../utils/web3');
+const { runSetup } = require('../../cmds/modules/setup');
 
 describe("Wallet modules", () => {
 	before((done) => {
