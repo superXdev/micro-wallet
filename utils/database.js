@@ -39,6 +39,10 @@ const Network = sequelize.define('Network', {
   explorerURL: {
     type: DataTypes.STRING,
     allowNull: true
+  },
+  isTestnet: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false
   }
 })
 
