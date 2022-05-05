@@ -11,7 +11,7 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
   - [x] export
   - [x] remove
 - [ ] networks management
-  - [ ] list
+  - [x] list
   - [ ] add
   - [ ] remove
 - [ ] display balances for each networks
