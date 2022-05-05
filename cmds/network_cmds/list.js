@@ -4,6 +4,8 @@ const chalk = require('chalk')
 const Listr = require('listr')
 
 
+
+
 async function getMainnetTable(argv) {
    const head = [chalk.white.bold('ID'), chalk.white.bold('Network name'), chalk.white.bold('Currency')]
    const colWidths = [5, 30, 13]
@@ -82,6 +84,8 @@ async function getTestnetTable(argv) {
          } else {
             data.push(chalk.red.bold('BAD'))
          }
+
+         
       }
 
       testnetTable.push(data)
