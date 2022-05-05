@@ -8,8 +8,8 @@ describe("Network modules", () => {
 		runSetup().then(() => done())
 	})
 
-	it("getNetworkList: should return 3 network", async () => {
+	it("getNetworkList: should return more than 0", async () => {
 		const networks = await network.getNetworkList()
-		expect(networks).to.have.lengthOf(3)
+		expect(networks).to.have.lengthOf.above(0)
 	})
 })
