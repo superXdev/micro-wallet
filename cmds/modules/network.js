@@ -89,14 +89,10 @@ async function isNetworkExists(name, symbol) {
    return true
 }
 
-// validation of url
-function validationURL(url) {
-   return url.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g)
-}
-
 module.exports = {
 	getNetworkList,
    getConnectionStatus,
    addNetwork,
-   isNetworkExists
+   isNetworkExists,
+   getBlockNumber
 }
