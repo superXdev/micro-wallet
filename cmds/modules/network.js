@@ -1,5 +1,6 @@
 const { Network } = require('../../utils/database')
 const Web3 = require('web3')
+const Web3HttpProvider = require('web3-providers-http')
 
 
 // get list of all network
@@ -12,10 +13,10 @@ async function getNetworkList(testnet = false) {
 }
 
 // check network connection
-async function getConnectionStatus(id) {
+async function getConnectionStatus(rpc) {
    try {
-      const networkData = await Network.findOne({ where: { id: id } })
-      const web3 = new Web3(networkData.rpcURL)
+      const provider = new Web3HttpProvider(rpc, { timeout: 2000 })
+      const web3 = new Web3(provider)
       return await web3.eth.getBlockNumber()
    } catch {
       return null

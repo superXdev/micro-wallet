@@ -31,7 +31,7 @@ async function getMainnetTable(argv) {
       )
 
       if(argv.status) {
-         const status = await getConnectionStatus(row.id)
+         const status = await getConnectionStatus(row.rpcURL)
 
          if(typeof status === 'number') {
             data.push(chalk.green.bold('OK'))
@@ -75,7 +75,7 @@ async function getTestnetTable(argv) {
       )
 
       if(argv.status) {
-         const status = await getConnectionStatus(row.id)
+         const status = await getConnectionStatus(row.rpcURL)
 
          if(typeof status === 'number') {
             data.push(chalk.green.bold('OK'))
