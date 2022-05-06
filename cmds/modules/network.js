@@ -89,10 +89,22 @@ async function isNetworkExists(name, symbol) {
    return true
 }
 
+// delete a network
+async function removeNetwork(id) {
+   const isExists = await Network.findOne({ where: { id: id } })
+
+   if(isExists) {
+      return await Network.destroy({ where: { id: id } })
+   }
+
+   return 0
+}
+
 module.exports = {
 	getNetworkList,
    getConnectionStatus,
    addNetwork,
    isNetworkExists,
-   getBlockNumber
+   getBlockNumber,
+   removeNetwork
 }
