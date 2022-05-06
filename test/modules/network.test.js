@@ -14,18 +14,12 @@ describe("Network modules", () => {
 	})
 
 	it("addNetwork: should return true", async () => {
-		const ethRpc = 'https://test.com/rpc'
-		const name = "Test"
-		const symbol = "TT"
-		const result = await network.addNetwork(name, ethRpc, symbol, undefined, true)
+		const result = await network.addNetwork("Test", 'https://test.com/rpc', "TT", undefined, true)
 		expect(result).to.deep.include({ success: true })
 	})
 
 	it("addNetwork: should return false when RPC is invalid", async () => {
-		const ethRpc = 'https://test/rpc'
-		const name = "Test 2"
-		const symbol = "TT"
-		const result = await network.addNetwork(name, ethRpc, symbol, undefined, true)
+		const result = await network.addNetwork("Test 2", 'https://test/rpc', "TT", undefined, true)
 		expect(result).to.deep.include({ success: false })
 	})
 
@@ -44,4 +38,14 @@ describe("Network modules", () => {
 		const result = await network.isNetworkExists("Test", "TT")
 		expect(result).to.be.true
 	}).timeout(6000)
+
+	it("removeNetwork: should return true", async () => {
+		const result = await network.removeNetwork(2)
+		expect(result).to.be.equal(1)
+	})
+
+	it("removeNetwork: should return false when ID not found", async () => {
+		const result = await network.removeNetwork(20)
+		expect(result).to.be.equal(0)
+	})
 })
