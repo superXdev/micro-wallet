@@ -1,3 +1,9 @@
+# package
 node_modules/
+
+# test output
+.nyc_output/
+
+# local database
 user.db
 user.test.db

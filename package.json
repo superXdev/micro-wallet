@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx mocha test/**/*.test.js -r dotenv/config"
+    "test": "npx nyc mocha test/**/*.test.js -r dotenv/config"
   },
   "bin": {
     "microw": "cli.js"
@@ -29,6 +29,7 @@
   "devDependencies": {
     "chai": "^4.3.6",
     "jest": "^28.0.3",
-    "mocha": "^10.0.0"
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0"
   }
 }

@@ -4,7 +4,7 @@ const Web3HttpProvider = require('web3-providers-http')
 const validator = require('validator')
 
 
-const asyncCallWithTimeout = async (asyncPromise, timeLimit) => {
+async function asyncCallWithTimeout(asyncPromise, timeLimit) {
     let timeoutHandle;
 
     const timeoutPromise = new Promise((_resolve, reject) => {
