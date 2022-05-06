@@ -34,7 +34,7 @@ exports.builder = (yargs) => {
 exports.handler = async function (argv) {
    if(argv.target !== 'all') {
       // show a native coin or a token balance
-      // get account & network first
+      // get account first
       const account = await getWalletInfo(argv.wallet)
       const networkData = await getNetworkInfo({ symbol: argv.target, testnet: argv.testnet })
 
