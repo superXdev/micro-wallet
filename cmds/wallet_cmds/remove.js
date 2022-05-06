@@ -13,12 +13,23 @@ exports.builder = {
     desc: 'Your wallet name or identifier'
   }
 }
-exports.handler = function (argv) {
-   isWalletExists(argv.name).then((result) => {
-      if(result === false) {
-         console.log(chalk.white.bold.bgRed('Wallet is not found!'))
-      } else {
-         removeWallet(argv.name).then(() => console.log(chalk.green('Successfully deleted')))
-      }
+exports.handler = async function (argv) {
+   const answers = await inquirer.prompt({
+      type: 'confirm',
+      name: 'toConfirmed',
+      message: 'Are you sure?',
+      default: false
    })
+
+   if(!answers.toConfirmed) {
+      return
+   }
+
+   const isExists = await isWalletExists(argv.name)
+
+   if(isExists === false) {
+      console.log(chalk.white.bold.bgRed('Wallet is not found!'))
+   } else {
+      removeWallet(argv.name).then(() => console.log(chalk.green('Successfully deleted')))
+   }
 }

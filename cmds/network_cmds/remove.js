@@ -15,6 +15,17 @@ exports.builder = {
 }
 
 exports.handler = async function (argv) {
+   const answers = await inquirer.prompt({
+      type: 'confirm',
+      name: 'toConfirmed',
+      message: 'Are you sure?',
+      default: false
+   })
+
+   if(!answers.toConfirmed) {
+      return
+   }
+
    const result = await removeNetwork(argv.network)
 
    if(result) {
