@@ -7,3 +7,5 @@ node_modules/
 # local database
 user.db
 user.test.db
+
+test.js

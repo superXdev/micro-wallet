@@ -8,7 +8,7 @@ const sequelize = new Sequelize({
   logging: false
 })
 
-const Wallet = sequelize.define('Wallet', {
+const Wallet = sequelize.define('wallet', {
   walletName: {
     type: DataTypes.STRING,
     allowNull: false
@@ -23,7 +23,7 @@ const Wallet = sequelize.define('Wallet', {
   }
 })
 
-const Network = sequelize.define('Network', {
+const Network = sequelize.define('network', {
   networkName: {
     type: DataTypes.STRING,
     allowNull: false
@@ -46,8 +46,34 @@ const Network = sequelize.define('Network', {
   }
 })
 
+const Token = sequelize.define('token', {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  symbol: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  decimals: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  contractAddress: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+})
+
+Network.hasMany(Token, { as: 'tokens' })
+Token.belongsTo(Network, {
+  foreignKey: "networkId",
+  as: "network",
+})
+
 module.exports = {
 	sequelize,
 	Wallet,
-  Network
+  Network,
+  Token
 }

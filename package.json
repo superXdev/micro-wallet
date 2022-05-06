@@ -13,6 +13,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bignumber.js": "^9.0.2",
     "boxen": "^4.2.0",
     "chalk": "2.4",
     "cli-table": "^0.3.11",
