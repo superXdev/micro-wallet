@@ -100,6 +100,8 @@ async function removeNetwork(id) {
    return 0
 }
 
+
+
 module.exports = {
 	getNetworkList,
    getConnectionStatus,

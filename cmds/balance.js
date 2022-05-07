@@ -1,5 +1,6 @@
 const yargs = require('yargs/yargs')
 const { getWalletInfo, getNetworkInfo, getBalance } = require('./modules/balance')
+const { getNetworkList } = require('./modules/network')
 const chalk = require('chalk')
 const BigNumber = require("bignumber.js")
 
@@ -14,7 +15,6 @@ function formatBalance(balance, decimals) {
       { maximumSignificantDigits: 3 }
    ).format(balanceShow)
 }
-
 
 exports.command = 'balance [target]'
 exports.desc = 'Show balance of coin or token'
@@ -33,21 +33,29 @@ exports.builder = (yargs) => {
       type: 'string',
       desc: 'Set network id or identifier'
    })
+   .option('testnet', {
+      alias: 't',
+      type: 'boolean',
+      desc: 'Enable testnet network only for "all"'
+   })
 } 
 
 
 exports.handler = async function (argv) {
+   // get account first
+   const account = await getWalletInfo(argv.wallet)
+
    if(argv.target !== 'all') {
       // show a native coin or a token balance
-      // get account first
-      const account = await getWalletInfo(argv.wallet)
       const networkData = await getNetworkInfo(argv.network)
+
+      const isToken = (argv.target == undefined || argv.target == networkData.currencySymbol) ? false : true
 
       // get balance
       const balance = await getBalance({
          address: account.address,
          rpc: networkData.rpc,
-         isToken: (argv.target == undefined || argv.target == networkData.currencySymbol) ? false : true,
+         isToken: isToken,
          target: argv.target
       })
 
@@ -58,9 +66,32 @@ exports.handler = async function (argv) {
       const currency = (argv.target == undefined || argv.target == networkData.currencySymbol) 
          ? networkData.currencySymbol : argv.target
 
-      const balanceShow = formatBalance(balance.balance, balance.decimals)
+      const balanceShow = (isToken) ? formatBalance(balance.balance, balance.decimals) : balance
 
-      console.log(`Network      : ${(argv.testnet) ? chalk.yellow(networkData.name) : chalk.green(networkData.name)}`)
+      console.log(`Network      : ${(networkData.isTestnet) ? chalk.cyan(networkData.name) : chalk.green(networkData.name)}`)
       console.log(`Your balance : ${chalk.yellow(balanceShow)} ${currency}`)
+   } else {
+      const networks = await getNetworkList(argv.testnet)
+
+      console.log(
+         `Network : ${(argv.testnet) ? chalk.cyan('Testnet') : chalk.green('Mainnet')}\n`
+      )
+
+      for(let i = 0; i < networks.length; i++) {
+         // get balance
+         const balance = await getBalance({
+            address: account.address,
+            rpc: networks[i].rpcURL,
+            isToken: false,
+            target: argv.target
+         })
+
+         if(balance.error) {
+            console.log(`Error : ${chalk.red.bold(balance.message)}`)
+            continue
+         }
+
+         console.log(`Balance : ${chalk.yellow(balance)} ${networks[i].currencySymbol}`)
+      }
    }
 }

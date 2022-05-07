@@ -15,24 +15,32 @@ async function getWalletInfo(walletName) {
 
 
 async function getBalance(data) {
-	if(!data.isToken) {
-		return await web3.getNativeBalance(data.address, data.rpc)
+	try {
+		if(!data.isToken) {
+			return await web3.getNativeBalance(data.address, data.rpc)
+		}
+
+		const token = await Token.findOne({
+			where: { symbol: data.target }
+		})
+
+		if(token === null) {
+			return null
+		}
+
+		const balance = await web3.getTokenBalance(data.address, token.contractAddress, data.rpc)
+
+		return {
+			balance: balance,
+			decimals: token.decimals
+		}
+	} catch(err) {
+		return {
+			error: true,
+			message: err
+		}
 	}
-
-	const token = await Token.findOne({
-		where: { symbol: data.target }
-	})
-
-	if(token === null) {
-		return null
-	}
-
-	const balance = await web3.getTokenBalance(data.address, token.contractAddress, data.rpc)
-
-	return {
-		balance: balance,
-		decimals: token.decimals
-	}
+	
 }
 
 
@@ -44,7 +52,8 @@ async function getNetworkInfo(id) {
 	return {
 		name: result.networkName,
 		rpc: result.rpcURL,
-		currencySymbol: result.currencySymbol
+		currencySymbol: result.currencySymbol,
+		isTestnet: result.isTestnet
 	}
 }
 
