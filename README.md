@@ -16,7 +16,7 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
   - [x] check
   - [x] remove
 - [ ] display balances for each networks
-  - [ ] token
+  - [x] token
   - [x] coin
   - [ ] all (coin & token)
 - [ ] transfer coin / token
@@ -24,7 +24,7 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
   - [ ] via address
 - [ ] token management
   - [x] import
-  - [ ] remove
+  - [x] remove
 - [ ] interactive menu
 - [ ] mass transfer token
 - [ ] swap for each networks
