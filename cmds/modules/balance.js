@@ -1,4 +1,6 @@
-const { Wallet, Network } = require('../../utils/database')
+const { Wallet, Network, Token } = require('../../utils/database')
+const web3 = require('../../utils/web3')
+
 
 async function getWalletInfo(walletName) {
 	const data = await Wallet.findOne({
@@ -12,27 +14,42 @@ async function getWalletInfo(walletName) {
 }
 
 
-async function getNetworkInfo(query) {
-	let result = null
-	if(query.symbol !== undefined && query.testnet !== undefined) {
-		result = await Network.findOne({
-			where: { currencySymbol: query.symbol, isTestnet: query.testnet }
-		})
+async function getBalance(data) {
+	if(!data.isToken) {
+		return await web3.getNativeBalance(data.address, data.rpc)
 	}
 
-	if(query.id !== undefined) {
-		result = await Network.findOne({
-			where: { id: query.id }
-		})
+	const token = await Token.findOne({
+		where: { symbol: data.target }
+	})
+
+	if(token === null) {
+		return null
 	}
+
+	const balance = await web3.getTokenBalance(data.address, token.contractAddress, data.rpc)
+
+	return {
+		balance: balance,
+		decimals: token.decimals
+	}
+}
+
+
+async function getNetworkInfo(id) {
+	const result = await Network.findOne({
+		where: { id: id }
+	})
 
 	return {
 		name: result.networkName,
-		rpc: result.rpcURL
+		rpc: result.rpcURL,
+		currencySymbol: result.currencySymbol
 	}
 }
 
 module.exports = {
 	getWalletInfo,
-	getNetworkInfo
+	getNetworkInfo,
+	getBalance
 }

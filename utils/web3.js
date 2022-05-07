@@ -16,11 +16,18 @@ function getAddress(privateKey) {
 	return address
 }
 
-async function getBalance(address, rpc) {
+async function getNativeBalance(address, rpc) {
 	const web3 = new Web3(rpc)
 	const balance = await web3.eth.getBalance(address)
 
 	return web3.utils.fromWei(balance)
+}
+
+async function getTokenBalance(userAddress, contractAddress, rpc) {
+	const web3 = new Web3(rpc)
+	const token = new web3.eth.Contract(erc20Abi, contractAddress)
+
+	return await token.methods.balanceOf(userAddress).call()
 }
 
 async function getTokenInfo(address, rpc) {
@@ -44,6 +51,7 @@ async function getTokenInfo(address, rpc) {
 module.exports = {
 	createAccount,
 	getAddress,
-	getBalance,
-	getTokenInfo
+	getNativeBalance,
+	getTokenInfo,
+	getTokenBalance
 }

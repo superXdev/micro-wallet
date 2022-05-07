@@ -54,13 +54,6 @@ const networkDefaultData = [
       isTestnet: true
    },
    {
-      networkName: "Rinkeby Test Network",
-      rpcURL: "https://rinkeby.infura.io/v3/7699ff9dd25b4694bc711ca3abcdec3d",
-      currencySymbol: "ETH",
-      explorerURL: "https://rinkeby.etherscan.io",
-      isTestnet: true
-   },
-   {
       networkName: "Avalanche Fuji Testnet",
       rpcURL: "https://api.avax-test.network/ext/bc/C/rpc",
       currencySymbol: "AVAX",

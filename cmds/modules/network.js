@@ -39,7 +39,7 @@ async function getBlockNumber(rpc) {
 async function getConnectionStatus(rpc) {
    try {
       return await asyncCallWithTimeout(getBlockNumber(rpc), 2500)
-   } catch {
+   } catch(err) {
       return null;
    }
 }

@@ -23,8 +23,8 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
   - [ ] between wallet
   - [ ] via address
 - [ ] token management
-  - [ ] add sc
-  - [ ] remove sc
+  - [x] import
+  - [ ] remove
 - [ ] interactive menu
 - [ ] mass transfer token
 - [ ] swap for each networks

@@ -62,6 +62,10 @@ const Token = sequelize.define('token', {
   contractAddress: {
     type: DataTypes.STRING,
     allowNull: false
+  },
+  networkId: {
+    type: DataTypes.NUMBER,
+    allowNull: false
   }
 })
 
