@@ -1,21 +1,11 @@
 const yargs = require('yargs/yargs')
 const { getWalletByName } = require('./modules/wallet')
-const { getBalance } = require('./modules/balance')
+const { getBalance, formatBalance } = require('./modules/balance')
 const { getNetworkList, getNetworkById } = require('./modules/network')
 const chalk = require('chalk')
-const BigNumber = require("bignumber.js")
 
 
-function formatBalance(balance, decimals) {
-   let balanceShow = (balance === "0") 
-         ? '0' 
-         : new BigNumber(balance + "e-" + decimals).toString()
 
-   return new Intl.NumberFormat(
-      'en-US', 
-      { maximumSignificantDigits: 3 }
-   ).format(balanceShow)
-}
 
 exports.command = 'balance [target]'
 exports.desc = 'Show balance of coin or token'

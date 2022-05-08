@@ -1,5 +1,6 @@
 const { Wallet, Network, Token } = require('../../utils/database')
 const web3 = require('../../utils/web3')
+const BigNumber = require("bignumber.js")
 
 
 async function getBalance(data) {
@@ -31,9 +32,19 @@ async function getBalance(data) {
 	
 }
 
+function formatBalance(balance, decimals) {
+   let balanceShow = (balance === "0") 
+         ? '0' 
+         : new BigNumber(balance + "e-" + decimals).toString()
 
+   return new Intl.NumberFormat(
+      'en-US', 
+      { maximumSignificantDigits: 3 }
+   ).format(balanceShow)
+}
 
 
 module.exports = {
-	getBalance
+	getBalance,
+	formatBalance
 }

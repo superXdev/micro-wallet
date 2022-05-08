@@ -3,6 +3,15 @@ const { Network, Token } = require('../../utils/database')
 
 
 
+async function getTokenList(networkId) {
+	const data = Token.findAll({
+		where: { networkId: networkId }
+	})
+
+	return data
+}
+
+
 async function importToken(data) {
 	const result = await Token.create({
 		name: data.name,
@@ -31,6 +40,7 @@ async function removeToken(id) {
 
 module.exports = {
 	importToken,
+	getTokenList,
 	getTokenBySymbol,
 	removeToken
 }
