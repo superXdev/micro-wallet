@@ -10,6 +10,18 @@ async function getWalletList() {
    return result
 }
 
+// get a wallet by name
+async function getWalletByName(walletName) {
+   const data = await Wallet.findOne({
+      where: { walletName: walletName }
+   })
+
+   return {
+      address: data.address,
+      name: data.walletName
+   }
+}
+
 // generate new encrypted private key
 // and insert in database
 async function createWallet(name, password) {
@@ -62,5 +74,6 @@ module.exports = {
   exportWallet,
   importWallet,
   getWalletList,
-  removeWallet
+  removeWallet,
+  getWalletByName
 }

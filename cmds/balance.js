@@ -1,6 +1,7 @@
 const yargs = require('yargs/yargs')
-const { getWalletInfo, getNetworkInfo, getBalance } = require('./modules/balance')
-const { getNetworkList } = require('./modules/network')
+const { getWalletByName } = require('./modules/wallet')
+const { getBalance } = require('./modules/balance')
+const { getNetworkList, getNetworkById } = require('./modules/network')
 const chalk = require('chalk')
 const BigNumber = require("bignumber.js")
 
@@ -43,7 +44,7 @@ exports.builder = (yargs) => {
 
 exports.handler = async function (argv) {
    // get account first
-   const account = await getWalletInfo(argv.wallet)
+   const account = await getWalletByName(argv.wallet)
 
    if(argv.target !== 'all') {
       if(argv.wallet === undefined || argv.network === undefined) {
@@ -51,7 +52,7 @@ exports.handler = async function (argv) {
       }
 
       // show a native coin or a token balance
-      const networkData = await getNetworkInfo(argv.network)
+      const networkData = await getNetworkById(argv.network)
 
       const isToken = (argv.target == undefined || argv.target == networkData.currencySymbol) ? false : true
 

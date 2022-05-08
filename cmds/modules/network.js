@@ -30,6 +30,20 @@ async function getNetworkList(testnet = false) {
    return result
 }
 
+// get a network by id
+async function getNetworkById(id) {
+   const result = await Network.findOne({
+      where: { id: id }
+   })
+
+   return {
+      name: result.networkName,
+      rpc: result.rpcURL,
+      currencySymbol: result.currencySymbol,
+      isTestnet: result.isTestnet
+   }
+}
+
 async function getBlockNumber(rpc) {
    const web3 = new Web3(rpc)
    return await web3.eth.getBlockNumber()
@@ -108,5 +122,6 @@ module.exports = {
    addNetwork,
    isNetworkExists,
    getBlockNumber,
-   removeNetwork
+   removeNetwork,
+   getNetworkById
 }
