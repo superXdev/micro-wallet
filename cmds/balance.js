@@ -46,6 +46,10 @@ exports.handler = async function (argv) {
    const account = await getWalletInfo(argv.wallet)
 
    if(argv.target !== 'all') {
+      if(argv.wallet === undefined || argv.network === undefined) {
+         return console.log('Missing flags : wallet, network')
+      }
+
       // show a native coin or a token balance
       const networkData = await getNetworkInfo(argv.network)
 
@@ -56,7 +60,8 @@ exports.handler = async function (argv) {
          address: account.address,
          rpc: networkData.rpc,
          isToken: isToken,
-         target: argv.target
+         target: argv.target,
+         network: argv.network
       })
 
       if(balance === null) {

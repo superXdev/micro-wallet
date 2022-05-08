@@ -15,10 +15,10 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
   - [x] add
   - [x] check
   - [x] remove
-- [ ] display balances for each networks
+- [x] display balances for each networks
   - [x] token
   - [x] coin
-  - [ ] all (coin & token)
+  - [x] all (all networks)
 - [ ] transfer coin / token
   - [ ] between wallet
   - [ ] via address

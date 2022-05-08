@@ -21,7 +21,7 @@ async function getBalance(data) {
 		}
 
 		const token = await Token.findOne({
-			where: { symbol: data.target }
+			where: { symbol: data.target, networkId: data.network }
 		})
 
 		if(token === null) {
