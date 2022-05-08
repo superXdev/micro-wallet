@@ -33,14 +33,12 @@ async function getBalance(data) {
 }
 
 function formatBalance(balance, decimals) {
-   let balanceShow = (balance === "0") 
-         ? '0' 
-         : new BigNumber(balance + "e-" + decimals).toString()
+	if(balance === "0")
+		return balance
 
-   return new Intl.NumberFormat(
-      'en-US', 
-      { maximumSignificantDigits: 3 }
-   ).format(balanceShow)
+   let newFormat = new BigNumber(balance + "e-" + decimals).toString()
+
+   return Number(newFormat).toFixed(5)
 }
 
 

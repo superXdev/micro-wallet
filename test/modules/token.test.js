@@ -30,4 +30,32 @@ describe("Token modules", () => {
 		expect(result).to.be.a('null')
 	})
 
+	it("getTokenList: should return 1 token", async () => {
+		const result = await token.getTokenList(7)
+		expect(result).to.have.lengthOf(1)
+	})
+
+	it("getTokenList: should return null", async () => {
+		await token.removeToken(1)
+		const result = await token.getTokenList(7)
+		expect(result).to.be.empty
+	})
+
+	it("removeToken: should return 1 or true", async () => {
+		await token.importToken({
+			name: 'USD Coin',
+			symbol: 'USDC',
+			decimals: 8,
+			address: '0x45c45697f64a5b8aba1a3300ac8db568a36b4666',
+			networkId: 7
+		})
+		const result = await token.removeToken(2)
+		expect(result).to.be.equal(1)
+	})
+
+	it("removeToken: should return 0 or false", async () => {
+		const result = await token.removeToken(2)
+		expect(result).to.be.equal(0)
+	})
+
 })

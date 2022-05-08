@@ -11,7 +11,7 @@ const Table = require('cli-table')
 
 async function getTokenTable(argv) {
    const head = [chalk.white.bold('Token name'), chalk.white.bold('Balance')]
-   const colWidths = [20, 20]
+   const colWidths = [20, 25]
 
    const tokenTable = new Table({
       head: head,

@@ -1,6 +1,6 @@
 const { expect } = require("chai");
 const wallet = require('../../cmds/modules/wallet');
-const { getBalance } = require('../../cmds/modules/balance');
+const { getBalance, formatBalance } = require('../../cmds/modules/balance');
 const network = require('../../cmds/modules/network');
 const { Token } = require('../../utils/database')
 const { runSetup } = require('../../cmds/modules/setup');
@@ -47,5 +47,38 @@ describe("Balance modules", () => {
 		})
 
 		expect(balance).to.deep.include({ balance: '0' })
+	}).timeout(10000)
+
+	it("getBalance: should return null", async () => {
+		const account = await wallet.getWalletByName('test')
+		const networkData = await network.getNetworkById(7)
+		const balance = await getBalance({
+			address: account.address,
+			rpc: networkData.rpc,
+			isToken: true,
+			target: 'USDT',
+			network: 7
+		})
+
+		expect(balance).to.be.a('null')
+	})
+
+	it("getBalance: should return error", async () => {
+		const balance = await getBalance({
+			isToken: false,
+			target: 'USDT',
+			network: 7
+		})
+		expect(balance).to.deep.include({ error: true })
+	})
+
+	it("formatBalance: should return right format", async () => {
+		const balance = formatBalance('1000000', 4)
+		expect(balance).to.be.equal('100.00000')
+	})
+
+	it("formatBalance: should return 0", async () => {
+		const balance = formatBalance('0', 4)
+		expect(balance).to.be.equal('0')
 	})
 })

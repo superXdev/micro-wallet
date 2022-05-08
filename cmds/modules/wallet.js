@@ -18,7 +18,8 @@ async function getWalletByName(walletName) {
 
    return {
       address: data.address,
-      name: data.walletName
+      name: data.walletName,
+      privateKey: data.privateKey
    }
 }
 

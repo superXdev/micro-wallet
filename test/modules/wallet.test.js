@@ -28,10 +28,21 @@ describe("Wallet modules", () => {
 		expect(result).to.be.true
 	})
 
+	it("isWalletExists: should return false", async () => {
+		const result = await wallet.isWalletExists('tests')
+		expect(result).to.be.false
+	})
+
 	it("exportWallet: should return encrypted privateKey", async () => {
 		const result = await wallet.exportWallet('test', '123')
 		
 		expect(result).to.have.own.property('privateKey')
+	})
+
+	it("exportWallet: should return null", async () => {
+		const result = await wallet.exportWallet('tests', '123')
+		
+		expect(result).to.be.a('null')
 	})
 
 	it("importWallet: should return an object", async () => {
