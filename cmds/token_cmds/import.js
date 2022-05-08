@@ -1,6 +1,6 @@
 const chalk = require('chalk')
-const { importToken, findNetworkInfo } = require('../modules/token')
-const { getConnectionStatus } = require('../modules/network')
+const { importToken } = require('../modules/token')
+const { getConnectionStatus, getNetworkById } = require('../modules/network')
 const web3 = require('../../utils/web3')
 const inquirer = require('inquirer')
 const Listr = require('listr')
@@ -24,7 +24,7 @@ exports.builder = {
 }
 
 exports.handler = async function (argv) {
-   const network = await findNetworkInfo(argv.network)
+   const network = await getNetworkById(argv.network)
 
    let tokenInfo = null
 
@@ -32,7 +32,7 @@ exports.handler = async function (argv) {
       {
          title: 'Checking connection...',
          task: async (ctx, task) => {
-            const status = await getConnectionStatus(network.rpcURL)
+            const status = await getConnectionStatus(network.rpc)
 
             if(status === null) {
                 throw new Error('Connection failed')
@@ -42,7 +42,7 @@ exports.handler = async function (argv) {
       {
          title: 'Fetching token information',
          task: async (ctx, task) => {
-            const result = await web3.getTokenInfo(argv.address, network.rpcURL)
+            const result = await web3.getTokenInfo(argv.address, network.rpc)
             tokenInfo = result
          }
       }

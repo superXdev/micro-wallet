@@ -2,12 +2,6 @@ const web3 = require('../../utils/web3')
 const { Network, Token } = require('../../utils/database')
 
 
-async function findNetworkInfo(networkId) {
-	return await Network.findOne({
-		where: { id: networkId }
-	})
-}
-
 
 async function importToken(data) {
 	const result = await Token.create({
@@ -17,6 +11,8 @@ async function importToken(data) {
 		contractAddress: data.address,
 		networkId: data.networkId
 	})
+
+	return result.id
 }
 
 async function getTokenBySymbol(symbol) {
@@ -35,7 +31,6 @@ async function removeToken(id) {
 
 module.exports = {
 	importToken,
-	findNetworkInfo,
 	getTokenBySymbol,
 	removeToken
 }
