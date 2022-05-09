@@ -76,11 +76,64 @@ async function getEstimateGasLimit(data) {
 	return 21000
 }
 
+// get data for raw transction of token transfer
+function getTransferTokenData(data) {
+	const web3 = new Web3(data.rpcURL)
+	const token = new web3.eth.Contract(erc20Abi, data.contractAddress)
+
+	return token.methods.transfer(
+		data.destination,
+		data.amount
+	).encodeABI()
+}
+
+// get current gas price
+async function getGasPrice(rpcURL) {
+	const web3 = new Web3(rpcURL)
+
+	return await web3.eth.getGasPrice()
+}
+
+// sign a transaction
+async function signTransaction(data) {
+	const web3 = new Web3(data.rpcURL)
+	const nonce = await web3.eth.getTransactionCount(data.from)
+	
+	// Build the transaction
+	let txData = {
+		nonce:    web3.utils.toHex(nonce),
+		to:       data.destination,
+		value:    web3.utils.toHex(web3.utils.toWei(data.value, 'ether')),
+		gasLimit: web3.utils.toHex(data.gasLimit),
+		gasPrice: web3.utils.toHex(data.gasPrice)
+	}
+
+	if(data.useData) {
+		txData.data = data.data
+	}
+
+	// Sign the transaction
+	const common = Common.custom({ chainId: data.chainId })
+	const tx = Transaction.fromTxData(txData, { common })
+	return tx.sign(Buffer.from(data.privateKey, 'hex'))
+}
+
+// sending a transaction
+async function sendingTransaction(txSigned, rpcURL) {
+	const web3 = new Web3(rpcURL)
+	const serializedTx = txSigned.serialize()
+	return await web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
+}
+
 module.exports = {
 	createAccount,
 	getAddress,
 	getNativeBalance,
 	getTokenInfo,
 	getTokenBalance,
-	getEstimateGasLimit
+	getEstimateGasLimit,
+	getTransferTokenData,
+	getGasPrice,
+	signTransaction,
+	sendingTransaction
 }
