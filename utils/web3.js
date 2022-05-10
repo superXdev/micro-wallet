@@ -119,10 +119,21 @@ async function signTransaction(data) {
 }
 
 // sending a transaction
-async function sendingTransaction(txSigned, rpcURL) {
+function sendingTransaction(txSigned, rpcURL) {
 	const web3 = new Web3(rpcURL)
 	const serializedTx = txSigned.serialize()
-	return await web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
+	return web3.eth.sendSignedTransaction('0x' + serializedTx.toString('hex'))
+}
+
+// formatter
+function fromWeiToGwei(wei) {
+	const web3 = new Web3()
+	return web3.utils.fromWei(wei.toString(), 'gwei')
+}
+
+function fromWeiToEther(wei) {
+	const web3 = new Web3()
+	return web3.utils.fromWei(wei.toString())
 }
 
 module.exports = {
@@ -135,5 +146,7 @@ module.exports = {
 	getTransferTokenData,
 	getGasPrice,
 	signTransaction,
-	sendingTransaction
+	sendingTransaction,
+	fromWeiToGwei,
+	fromWeiToEther
 }

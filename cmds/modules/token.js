@@ -1,5 +1,8 @@
 const web3 = require('../../utils/web3')
 const { Network, Token } = require('../../utils/database')
+const Web3 = require('web3')
+const BigNumber = require("bignumber.js")
+
 
 
 
@@ -38,9 +41,15 @@ async function removeToken(id) {
    return 0
 }
 
+function formatAmount(amount, decimals) {
+	const web3 = new Web3()
+	return new BigNumber(amount.toString() + "e" + decimals).c[0]
+}
+
 module.exports = {
 	importToken,
 	getTokenList,
 	getTokenBySymbol,
-	removeToken
+	removeToken,
+	formatAmount
 }
