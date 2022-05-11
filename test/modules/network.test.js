@@ -18,8 +18,18 @@ describe("Network modules", () => {
 		expect(result).to.deep.include({ success: true })
 	})
 
+	it("addNetwork: should return true for explorer inserted", async () => {
+		const result = await network.addNetwork("Test", 'https://test.com', "TT", 'https://scan.com', true)
+		expect(result).to.deep.include({ success: true })
+	})
+
 	it("addNetwork: should return false when RPC is invalid", async () => {
 		const result = await network.addNetwork("Test 2", 'https://test/rpc', "TT", undefined, true)
+		expect(result).to.deep.include({ success: false })
+	})
+
+	it("addNetwork: should return false when error", async () => {
+		const result = await network.addNetwork("Test 2", 'https://test.com/rpc')
 		expect(result).to.deep.include({ success: false })
 	})
 

@@ -1,5 +1,6 @@
 const yargs = require('yargs/yargs')
 const inquirer = require('inquirer')
+const validator = require('validator')
 const Listr = require('listr')
 const { getWalletByName } = require('./modules/wallet')
 const { getTokenBySymbol, formatAmount } = require('./modules/token')
@@ -66,6 +67,12 @@ exports.builder = (yargs) => {
 exports.handler = async function (argv) {
    // get account first
    const account = await getWalletByName(argv.wallet)
+   // get destination
+   let destination = argv.destination
+
+   if(validator.isAlphanumeric(argv.destination)) {
+      destination = await getWalletByName(argv.destination)
+   }
 
    // get network data
    const networkData = await getNetworkById(argv.network)
@@ -106,7 +113,7 @@ exports.handler = async function (argv) {
                   rpcURL: networkData.rpc,
                   type: TRANSFER_TOKEN,
                   contractAddress: tokenData.contractAddress,
-                  destination: argv.destination,
+                  destination: destination.address,
                   from: account.address,
                   amount: formatAmount(argv.amount, tokenData.decimals)
                }
@@ -115,7 +122,7 @@ exports.handler = async function (argv) {
                rawData = getTransferTokenData({
                   rpcURL: networkData.rpc,
                   contractAddress: tokenData.contractAddress,
-                  destination: argv.destination,
+                  destination: destination.address,
                   amount: formatAmount(argv.amount, tokenData.decimals)
                })
 
@@ -146,7 +153,7 @@ exports.handler = async function (argv) {
    console.log('  ==========')
    console.log(`  Amount    : ${chalk.magenta(argv.amount)} ${argv.symbol}`)
    console.log(`  Sender    : ${account.address}`)
-   console.log(`  Receipt   : ${argv.destination}`)
+   console.log(`  Receipt   : ${destination.address}`)
    console.log(`  Gas limit : ${gasLimit}`)
    console.log(`  Gas price : ${chalk.gray(fromWeiToGwei(gasPrice))} gwei`)
    console.log(`  Total fee : ${chalk.gray(totalFee)} ETH`)
@@ -175,7 +182,7 @@ exports.handler = async function (argv) {
       // sign
       txSigned = await signTransaction({
          rpcURL: networkData.rpc,
-         destination: argv.destination,
+         destination: destination.address,
          from: account.address,
          value: argv.amount,
          gasLimit: gasLimit,

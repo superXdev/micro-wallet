@@ -20,17 +20,16 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
   - [x] token
   - [x] coin
   - [x] all (all networks)
-- [ ] transfer
-  - [ ] coin
-  - [ ] token
-  - [ ] between wallet
-  - [ ] via address
+- [x] transfer
+  - [x] coin
+  - [x] token
+  - [x] between wallet
+  - [x] via address
 - [x] token management
   - [x] import
   - [x] balance
   - [x] remove
 - [ ] interactive menu
-- [ ] mass transfer token
 - [ ] swap for each networks
   - [ ] ethereum
   - [ ] bsc
