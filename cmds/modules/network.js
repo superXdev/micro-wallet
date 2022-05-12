@@ -40,6 +40,8 @@ async function getNetworkById(id) {
       name: result.networkName,
       rpc: result.rpcURL,
       currencySymbol: result.currencySymbol,
+      chainId: result.chainId,
+      explorerURL: result.explorerURL,
       isTestnet: result.isTestnet
    }
 }

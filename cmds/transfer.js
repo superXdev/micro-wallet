@@ -169,7 +169,8 @@ exports.handler = async function (argv) {
       message: 'Enter password to continue:'
    })
 
-   const decryptedKey = crypto.decryptData(account.privateKey, answers.password).slice(2)
+   let decryptedKey = crypto.decryptData(account.privateKey, answers.password)
+   decryptedKey = (decryptedKey.slice(2) == "0x") ? decryptedKey.slice(2) : decryptedKey
 
    if(decryptedKey == "") {
       return console.log(chalk.red.bold('Password is wrong!'))
@@ -187,7 +188,7 @@ exports.handler = async function (argv) {
          value: argv.amount,
          gasLimit: gasLimit,
          gasPrice: gasPrice,
-         chainId: 3,
+         chainId: networkData.chainId,
          privateKey: decryptedKey
       })
    } else {
@@ -198,7 +199,7 @@ exports.handler = async function (argv) {
          value: '0',
          gasLimit: gasLimit,
          gasPrice: gasPrice,
-         chainId: 3,
+         chainId: networkData.chainId,
          useData: true,
          data: rawData,
          privateKey: decryptedKey
@@ -208,8 +209,8 @@ exports.handler = async function (argv) {
    // console.log(getTxHash(txSigned.data))
    console.log('Sending transaction into blockchain')
    sendingTransaction(txSigned, networkData.rpc)
-      .once('transactionHash', function(txHash) {
-         console.log(`Hash : ${chalk.cyan(txHash)}`)
-         process.exit(0)
+      .on('receipt', function(data) {
+         console.log(`Hash     : ${chalk.cyan(data.transactionHash)}`)
+         console.log(`Explorer : ${networkData.explorerURL}/tx/${data.transactionHash}`)
       })
 }
