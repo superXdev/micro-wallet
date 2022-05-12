@@ -3,7 +3,7 @@ const {
 	createAccount,
 	getAddress,
 	getTokenInfo
-} = require('../utils/web3');
+} = require('../../utils/web3');
 
 describe("Web3 utility", () => {
 

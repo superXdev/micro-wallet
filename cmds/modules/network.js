@@ -54,14 +54,14 @@ async function getBlockNumber(rpc) {
 // check network connection
 async function getConnectionStatus(rpc) {
    try {
-      return await asyncCallWithTimeout(getBlockNumber(rpc), 2500)
+      return await asyncCallWithTimeout(getBlockNumber(rpc), 3000)
    } catch(err) {
       return null;
    }
 }
 
 // add new network
-async function addNetwork(name, rpc, symbol, explorer, testnet) {
+async function addNetwork(name, rpc, chainId, symbol, explorer, testnet) {
    if(!validator.isURL(rpc, { require_protocol: true, require_host: true })) {
       return {
          success: false,
@@ -74,6 +74,7 @@ async function addNetwork(name, rpc, symbol, explorer, testnet) {
          networkName: name,
          rpcURL: rpc,
          currencySymbol: symbol,
+         chainId: chainId,
          isTestnet: testnet
       }
 
