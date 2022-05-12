@@ -8,6 +8,7 @@ const networkDefaultData = [
       rpcURL: "https://mainnet.infura.io/v3/7699ff9dd25b4694bc711ca3abcdec3d",
       currencySymbol: "ETH",
       explorerURL: "https://etherscan.io",
+      chainId: 1,
       isTestnet: false
    },
    {
@@ -15,6 +16,7 @@ const networkDefaultData = [
       rpcURL: "https://polygon-rpc.com/",
       currencySymbol: "MATIC",
       explorerURL: "https://polygonscan.com",
+      chainId: 137,
       isTestnet: false
    },
    {
@@ -22,6 +24,7 @@ const networkDefaultData = [
       rpcURL: "https://api.avax.network/ext/bc/C/rpc",
       currencySymbol: "AVAX",
       explorerURL: "https://snowtrace.io",
+      chainId: 43114,
       isTestnet: false
    },
    {
@@ -29,6 +32,7 @@ const networkDefaultData = [
       rpcURL: "https://bsc-dataseed1.binance.org",
       currencySymbol: "BNB",
       explorerURL: "https://bscscan.com",
+      chainId: 56,
       isTestnet: false
    },
    {
@@ -36,6 +40,7 @@ const networkDefaultData = [
       rpcURL: "https://rpc.ftm.tools/",
       currencySymbol: "FTM",
       explorerURL: "https://ftmscan.com/",
+      chainId: 250,
       isTestnet: false
    },
    // testnet network
@@ -44,6 +49,7 @@ const networkDefaultData = [
       rpcURL: "https://matic-mumbai.chainstacklabs.com",
       currencySymbol: "MATIC",
       explorerURL: "https://mumbai.polygonscan.com",
+      chainId: 80001,
       isTestnet: true
    },
    {
@@ -51,6 +57,7 @@ const networkDefaultData = [
       rpcURL: "https://ropsten.infura.io/v3/7699ff9dd25b4694bc711ca3abcdec3d",
       currencySymbol: "ETH",
       explorerURL: "https://ropsten.etherscan.io",
+      chainId: 3,
       isTestnet: true
    },
    {
@@ -58,6 +65,7 @@ const networkDefaultData = [
       rpcURL: "https://api.avax-test.network/ext/bc/C/rpc",
       currencySymbol: "AVAX",
       explorerURL: "https://testnet.snowtrace.io",
+      chainId: 43113,
       isTestnet: true
    },
    {
@@ -65,6 +73,7 @@ const networkDefaultData = [
       rpcURL: "https://data-seed-prebsc-1-s1.binance.org:8545",
       currencySymbol: "BNB",
       explorerURL: "https://testnet.bscscan.com",
+      chainId: 97,
       isTestnet: true
    },
    {
@@ -72,12 +81,14 @@ const networkDefaultData = [
       rpcURL: "https://rpc.testnet.fantom.network/",
       currencySymbol: "FTM",
       explorerURL: "https://testnet.ftmscan.com",
+      chainId: 4002,
       isTestnet: true
    },
    {
       networkName: "Localhost 8545",
       rpcURL: "http://localhost:8545",
       currencySymbol: "ETH",
+      chainId: 1337,
       isTestnet: true
    },
 ]

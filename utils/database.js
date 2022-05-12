@@ -40,6 +40,10 @@ const Network = sequelize.define('network', {
     type: DataTypes.STRING,
     allowNull: true
   },
+  chainId: {
+    type: DataTypes.NUMBER,
+    allowNull: false
+  },
   isTestnet: {
     type: DataTypes.BOOLEAN,
     allowNull: false
