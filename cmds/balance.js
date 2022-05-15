@@ -7,7 +7,7 @@ const chalk = require('chalk')
 
 
 
-exports.command = 'balance [target]'
+exports.command = 'balance <target>'
 exports.desc = 'Show balance of coin or token'
 exports.builder = (yargs) => {
    yargs.positional('target', {
