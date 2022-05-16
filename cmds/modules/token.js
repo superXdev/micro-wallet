@@ -1,5 +1,6 @@
 const web3 = require('../../utils/web3')
 const { Network, Token } = require('../../utils/database')
+const erc20Abi = require('../../abi/erc20.json')
 const Web3 = require('web3')
 const BigNumber = require("bignumber.js")
 
@@ -41,6 +42,19 @@ async function removeToken(id) {
    return 0
 }
 
+async function getAllowance(data) {
+	const web3 = new Web3(data.rpcURL)
+	const token = new web3.eth.Contract(erc20Abi, data.contractAddress)
+	return await token.methods.allowance(data.owner, data.spender).call()
+}
+
+
+async function getBalance(data) {
+	const web3 = new Web3(data.rpcURL)
+	const token = new web3.eth.Contract(erc20Abi, data.contractAddress)
+	return await token.methods.balanceOf(data.owner).call()
+}
+
 function formatAmount(amount, decimals) {
 	const web3 = new Web3()
 	return new BigNumber(amount.toString() + "e" + decimals).c[0]
@@ -51,5 +65,7 @@ module.exports = {
 	getTokenList,
 	getTokenBySymbol,
 	removeToken,
-	formatAmount
+	formatAmount,
+	getAllowance,
+	getBalance
 }

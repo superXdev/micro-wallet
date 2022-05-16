@@ -170,7 +170,7 @@ exports.handler = async function (argv) {
    })
 
    let decryptedKey = crypto.decryptData(account.privateKey, answers.password)
-   decryptedKey = (decryptedKey.slice(2) == "0x") ? decryptedKey.slice(2) : decryptedKey
+   decryptedKey = (decryptedKey.slice(0,2) == "0x") ? decryptedKey.slice(2) : decryptedKey
 
    if(decryptedKey == "") {
       return console.log(chalk.red.bold('Password is wrong!'))

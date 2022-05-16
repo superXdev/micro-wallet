@@ -1,9 +1,15 @@
 const Web3 = require('web3')
 const erc20Abi = require('../abi/erc20.json')
+const swapAbi = require('../abi/swapv2.json')
 const BigNumber = require("bignumber.js")
 const { Transaction } = require('@ethereumjs/tx')
 const Common = require('@ethereumjs/common').default
-const { TRANSFER_TOKEN } = require('./constants')
+const { 
+	TRANSFER_TOKEN, 
+	SWAP_ETH_FOR_TOKEN, 
+	APPROVE_TOKEN,
+	AMOUNT_ALLOWANCE
+} = require('./constants')
 
 // generate new account
 // return address, privateKey, etc
@@ -61,13 +67,31 @@ async function getTokenInfo(address, rpc) {
 async function getEstimateGasLimit(data) {
 	// web3 instances
 	const web3 = new Web3(data.rpcURL)
+	// swap contract
+	const token = new web3.eth.Contract(erc20Abi, data.contractAddress)
+	const swap = new web3.eth.Contract(swapAbi, data.contractAddress)
+
 	// for transfer token
 	if(data.type == TRANSFER_TOKEN) {
-		// token contract
-		const token = new web3.eth.Contract(erc20Abi, data.contractAddress)
 
 		return await token.methods.transfer(
 			data.destination,
+			data.amount
+		).estimateGas({ from: data.from })
+	}
+
+	if(data.type === SWAP_ETH_FOR_TOKEN) {
+		return await swap.methods.swapExactETHForTokens(
+			data.amountOutMin,
+			data.path,
+			data.to,
+			data.deadline
+		).estimateGas({ from: data.from, value: data.value })
+	}
+
+	if(data.type === APPROVE_TOKEN) {
+		return await token.methods.approve(
+			data.spender,
 			data.amount
 		).estimateGas({ from: data.from })
 	}
@@ -87,6 +111,30 @@ function getTransferTokenData(data) {
 	).encodeABI()
 }
 
+// get data for raw transaction of swap ETH fro TOKEN
+function getSwapEthForTokenData(data) {
+	const web3 = new Web3(data.rpcURL)
+	const swap = new web3.eth.Contract(swapAbi, data.contractAddress)
+
+	return swap.methods.swapExactETHForTokens(
+		data.amountOutMin,
+		data.path,
+		data.to,
+		data.deadline
+	).encodeABI()
+}
+
+// get data for approve TOKEN or spend it
+function getApproveData(data) {
+	const web3 = new Web3(data.rpcURL)
+	const token = new web3.eth.Contract(erc20Abi, data.contractAddress)
+
+	return token.methods.approve(
+		data.spender,
+		AMOUNT_ALLOWANCE
+	).encodeABI()
+}
+
 // get current gas price
 async function getGasPrice(rpcURL) {
 	const web3 = new Web3(rpcURL)
@@ -97,7 +145,8 @@ async function getGasPrice(rpcURL) {
 // sign a transaction
 async function signTransaction(data) {
 	const web3 = new Web3(data.rpcURL)
-	const nonce = await web3.eth.getTransactionCount(data.from)
+	let nonce = await web3.eth.getTransactionCount(data.from)
+	nonce = (data.incNonce) ? nonce + 1 : nonce
 	
 	// Build the transaction
 	let txData = {
@@ -136,6 +185,11 @@ function fromWeiToEther(wei) {
 	return web3.utils.fromWei(wei.toString())
 }
 
+function fromEtherToWei(ether) {
+	const web3 = new Web3()
+	return web3.utils.toWei(ether)
+}
+
 module.exports = {
 	createAccount,
 	getAddress,
@@ -148,5 +202,8 @@ module.exports = {
 	signTransaction,
 	sendingTransaction,
 	fromWeiToGwei,
-	fromWeiToEther
+	fromWeiToEther,
+	fromEtherToWei,
+	getSwapEthForTokenData,
+	getApproveData
 }

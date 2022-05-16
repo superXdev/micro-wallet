@@ -1,4 +1,4 @@
-const { sequelize, Network } = require('../../utils/database')
+const { sequelize, Network, Provider, Pair } = require('../../utils/database')
 
 
 const networkDefaultData = [
@@ -93,9 +93,36 @@ const networkDefaultData = [
    },
 ]
 
+const providerDefaultData = [
+   {
+      providerName: "Sushiswap Ropsten Testnet",
+      contractAddress: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
+      networkId: 7
+   }
+]
+
+const pairDefaultData = [
+   {
+      name: "Wrapped Ether",
+      symbol: "ETH",
+      contractAddress: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+      decimals: 18,
+      networkId: 7
+   },
+   {
+      name: "USD Coin",
+      symbol: "USDC",
+      contractAddress: "0x0D9C8723B343A8368BebE0B5E89273fF8D712e3C",
+      decimals: 6,
+      networkId: 7
+   },
+]
+
 async function runSetup() {
 	await sequelize.sync({ force: true })
 	await Network.bulkCreate(networkDefaultData)
+   await Provider.bulkCreate(providerDefaultData)
+   await Pair.bulkCreate(pairDefaultData)
 }
 
 module.exports = {

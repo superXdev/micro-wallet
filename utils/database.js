@@ -28,6 +28,10 @@ const Network = sequelize.define('network', {
     type: DataTypes.STRING,
     allowNull: false
   },
+  chainId: {
+    type: DataTypes.NUMBER,
+    allowNull: false
+  },
   rpcURL: {
     type: DataTypes.STRING,
     allowNull: false
@@ -40,10 +44,6 @@ const Network = sequelize.define('network', {
     type: DataTypes.STRING,
     allowNull: true
   },
-  chainId: {
-    type: DataTypes.NUMBER,
-    allowNull: false
-  },
   isTestnet: {
     type: DataTypes.BOOLEAN,
     allowNull: false
@@ -51,6 +51,44 @@ const Network = sequelize.define('network', {
 })
 
 const Token = sequelize.define('token', {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  symbol: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  decimals: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  contractAddress: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  networkId: {
+    type: DataTypes.NUMBER,
+    allowNull: false
+  }
+})
+
+const Provider = sequelize.define('provider', {
+  providerName: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  contractAddress: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  networkId: {
+    type: DataTypes.NUMBER,
+    allowNull: false
+  }
+})
+
+const Pair = sequelize.define('pair', {
   name: {
     type: DataTypes.STRING,
     allowNull: false
@@ -83,5 +121,7 @@ module.exports = {
 	sequelize,
 	Wallet,
   Network,
-  Token
+  Token,
+  Provider,
+  Pair
 }
