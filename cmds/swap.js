@@ -19,13 +19,19 @@ const {
    getSwapEthForTokenData,
    signTransaction,
    sendingTransaction,
-   fromWeiToGwei
+   fromWeiToGwei,
+   getSwapTokenForEthData
 } = require('../utils/web3')
 const crypto = require('../utils/crypto')
 const BigNumber = require('bignumber.js')
 const inquirer = require('inquirer')
 const Listr = require('listr')
-const { SWAP_ETH_FOR_TOKEN, APPROVE_TOKEN, AMOUNT_ALLOWANCE } = require('../utils/constants')
+const { 
+   SWAP_ETH_FOR_TOKEN, 
+   APPROVE_TOKEN,
+   SWAP_TOKEN_FOR_ETH,
+   AMOUNT_ALLOWANCE 
+} = require('../utils/constants')
 const Web3 = require('web3')
 
 
@@ -175,7 +181,18 @@ exports.handler = async function (argv) {
             }
 
             if(isFromToken) {
-
+               gasLimit = await getEstimateGasLimit({
+                  rpcURL: networkData.rpc,
+                  contractAddress: provider.contractAddress,
+                  type: SWAP_TOKEN_FOR_ETH,
+                  value: '0',
+                  amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
+                  amountOutMin: finalOut.toString(),
+                  path: path,
+                  to: recipient,
+                  from: account.address,
+                  deadline: deadline
+               })
             }
 
             // get current gas price
@@ -246,9 +263,22 @@ exports.handler = async function (argv) {
       })
    }
 
+   if(isFromToken) {
+      rawData = getSwapTokenForEthData({
+         rpcURL: networkData.rpc,
+         contractAddress: provider.contractAddress,
+         amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
+         amountOutMin: finalOut.toString(),
+         path: path,
+         to: recipient,
+         from: account.address,
+         deadline: deadline
+      })
+   }
 
 
-   const value = (isFromNative) ? argv.amount : 0
+
+   const value = (isFromNative) ? argv.amount : '0'
    
    txSignedParam = {
       rpcURL: networkData.rpc,
