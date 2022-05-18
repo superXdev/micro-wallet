@@ -9,7 +9,8 @@ const {
 	SWAP_ETH_FOR_TOKEN, 
 	APPROVE_TOKEN,
 	AMOUNT_ALLOWANCE,
-	SWAP_TOKEN_FOR_ETH
+	SWAP_TOKEN_FOR_ETH,
+	SWAP_TOKEN_FOR_TOKEN
 } = require('./constants')
 
 // generate new account
@@ -100,6 +101,16 @@ async function getEstimateGasLimit(data) {
 		).estimateGas({ from: data.from, value: data.value })
 	}
 
+	if(data.type === SWAP_TOKEN_FOR_TOKEN) {
+		return await swap.methods.swapExactTokensForTokens(
+			data.amountIn,
+			data.amountOutMin,
+			data.path,
+			data.to,
+			data.deadline
+		).estimateGas({ from: data.from, value: data.value })
+	}
+
 	if(data.type === APPROVE_TOKEN) {
 		return await token.methods.approve(
 			data.spender,
@@ -141,6 +152,20 @@ function getSwapTokenForEthData(data) {
 	const swap = new web3.eth.Contract(swapAbi, data.contractAddress)
 
 	return swap.methods.swapExactTokensForETH(
+		data.amountIn,
+		data.amountOutMin,
+		data.path,
+		data.to,
+		data.deadline
+	).encodeABI()
+}
+
+// get data for raw transaction of swap TOKEN for TOKEN
+function getSwapTokenForTokenData(data) {
+	const web3 = new Web3(data.rpcURL)
+	const swap = new web3.eth.Contract(swapAbi, data.contractAddress)
+
+	return swap.methods.swapExactTokensForTokens(
 		data.amountIn,
 		data.amountOutMin,
 		data.path,
@@ -231,5 +256,6 @@ module.exports = {
 	fromEtherToWei,
 	getSwapEthForTokenData,
 	getApproveData,
-	getSwapTokenForEthData
+	getSwapTokenForEthData,
+	getSwapTokenForTokenData
 }

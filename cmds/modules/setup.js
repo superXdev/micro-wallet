@@ -116,6 +116,13 @@ const pairDefaultData = [
       decimals: 6,
       networkId: 7
    },
+   {
+      name: "Uniswap",
+      symbol: "UNI",
+      contractAddress: "0x71d82Eb6A5051CfF99582F4CDf2aE9cD402A4882",
+      decimals: 18,
+      networkId: 7
+   },
 ]
 
 async function runSetup() {

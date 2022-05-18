@@ -20,7 +20,8 @@ const {
    signTransaction,
    sendingTransaction,
    fromWeiToGwei,
-   getSwapTokenForEthData
+   getSwapTokenForEthData,
+   getSwapTokenForTokenData
 } = require('../utils/web3')
 const crypto = require('../utils/crypto')
 const BigNumber = require('bignumber.js')
@@ -30,7 +31,8 @@ const {
    SWAP_ETH_FOR_TOKEN, 
    APPROVE_TOKEN,
    SWAP_TOKEN_FOR_ETH,
-   AMOUNT_ALLOWANCE 
+   SWAP_TOKEN_FOR_TOKEN,
+   AMOUNT_ALLOWANCE
 } = require('../utils/constants')
 const Web3 = require('web3')
 
@@ -93,6 +95,8 @@ exports.handler = async function (argv) {
   const pair = await getPairBySymbol({ a: argv.from, b: argv.to })
   const path = [pair[0].contractAddress, pair[1].contractAddress]
 
+  // return console.log(path)
+
   // setting
   const recipient = (argv.receipt) ? argv.receipt : account.address
   const deadline = (parseInt(Date.now() / 1000) + argv.deadline * 60).toString()
@@ -148,7 +152,7 @@ exports.handler = async function (argv) {
       {
          title: 'Estimating gas fee & output amount',
          task: async (ctx, task) => {
-            const inAmount = (argv.from == networkData.currencySymbol)
+            const inAmount = (isFromNative)
                ? fromEtherToWei(argv.amount)
                : BigNumber(`${argv.amount}e${pair[0].decimals}`).toString()
 
@@ -156,7 +160,6 @@ exports.handler = async function (argv) {
                rpcURL: networkData.rpc,
                contractAddress: provider.contractAddress,
                amount: inAmount,
-               decimals: pair[0].decimals,
                path: path
             })
 
@@ -180,7 +183,20 @@ exports.handler = async function (argv) {
                })
             }
 
-            if(isFromToken) {
+            if(isBetweenToken) {
+               gasLimit = await getEstimateGasLimit({
+                  rpcURL: networkData.rpc,
+                  contractAddress: provider.contractAddress,
+                  type: SWAP_TOKEN_FOR_TOKEN,
+                  value: '0',
+                  amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
+                  amountOutMin: finalOut.toString(),
+                  path: path,
+                  to: recipient,
+                  from: account.address,
+                  deadline: deadline
+               })
+            } else if(isFromToken) {
                gasLimit = await getEstimateGasLimit({
                   rpcURL: networkData.rpc,
                   contractAddress: provider.contractAddress,
@@ -265,6 +281,19 @@ exports.handler = async function (argv) {
 
    if(isFromToken) {
       rawData = getSwapTokenForEthData({
+         rpcURL: networkData.rpc,
+         contractAddress: provider.contractAddress,
+         amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
+         amountOutMin: finalOut.toString(),
+         path: path,
+         to: recipient,
+         from: account.address,
+         deadline: deadline
+      })
+   }
+
+   if(isBetweenToken) {
+      rawData = getSwapTokenForTokenData({
          rpcURL: networkData.rpc,
          contractAddress: provider.contractAddress,
          amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),

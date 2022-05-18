@@ -42,24 +42,44 @@ exports.handler = async function (argv) {
    const timeAgo = new TimeAgo('en-US')
 
    const result = await web3.eth.getTransaction(argv.hash)
-   const result2 = await web3.eth.getTransactionReceipt(argv.hash)
-   const block = await web3.eth.getBlock(result.blockNumber)
-   const gasPercentUsed = parseFloat(result2.gasUsed / result.gas * 100).toFixed(2)
-   const date = new Date(block.timestamp * 1000).toLocaleString()
+
+   if(result === null) {
+      return console.log('The transaction is not found')
+   }
+
+   let txReceipt = {}
+   let gasPercentUsed = 0
+   let time
+   let isFailed = false
+
+   if(result.blockHash === null) {
+      txReceipt.status = chalk.gray.bold('Pending')
+      time = '-'
+   } else {
+      const result2 = await web3.eth.getTransactionReceipt(argv.hash)
+      const block = await web3.eth.getBlock(result.blockNumber)
+      gasPercentUsed = parseFloat(result2.gasUsed / result.gas * 100).toFixed(2)
+      const date = new Date(block.timestamp * 1000).toLocaleString()
+      time = `${timeAgo.format(block.timestamp * 1000)} (${date})`
+      isFailed = (result2.status) ? false : true
+      txReceipt.status = (result2.status) ? chalk.green.bold('Success') : chalk.red.bold('Failed')
+   }
+
+   
 
    let reason
-   if(!result2.status) {
+   if(isFailed) {
       reason = await getRevertReason(argv.hash, network.rpc)
    }
 
    console.log(chalk.white.bold("Transaction details"))
    console.log('========')
-   console.log(` Status     : ${(result2.status) ? chalk.green.bold('Success') : chalk.red.bold('Failed')}`)
-   if(!result2.status) {
+   console.log(` Status     : ${txReceipt.status}`)
+   if(isFailed) {
       console.log(` Reason     :${chalk.yellow(reason.toString().split(':').slice(2).join(':'))}`)
    }
-   console.log(` Block      : ${chalk.cyan(result.blockNumber)}`)
-   console.log(` Timestamps : ${timeAgo.format(block.timestamp * 1000)} (${date})`)
+   console.log(` Block      : ${(result.blockNumber) ? chalk.cyan(result.blockNumber) : '-'}`)
+   console.log(` Timestamps : ${time}`)
    console.log(` From       : ${chalk.gray(result.from)}`)
    console.log(` To         : ${chalk.gray(result.to)}`)
    console.log(` Value      : ${chalk.yellow(web3.utils.fromWei(result.value))} ${network.currencySymbol}`)
