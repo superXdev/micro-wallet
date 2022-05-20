@@ -41,8 +41,9 @@ async function getPairBySymbol(data) {
 	]
 }
 
-function calcFinalMinOut(amount, slippage) {
-	const div = amount * slippage / 100
+function calcFinalMinOut(amount, decimals, slippage) {
+	// amount = BigNumber(`${amount}e-${decimals}`).toString()
+	const div = parseInt(amount) * slippage / 100
 	return amount - parseInt(div)
 }
 
@@ -55,7 +56,7 @@ async function getAmountsIn(data) {
 
 async function approveToken(data) {
 	const rawData = web3.getApproveData({
-	rpcURL: data.rpcURL,
+		rpcURL: data.rpcURL,
 		spender: data.spender,
 		owner: data.owner
 	})

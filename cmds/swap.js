@@ -36,6 +36,45 @@ const {
 } = require('../utils/constants')
 const Web3 = require('web3')
 
+// prototype of Number object
+Number.prototype.noExponents = function() {
+   var data = String(this).split(/[eE]/)
+   if (data.length == 1) return data[0]
+
+   var z = '',
+      sign = this < 0 ? '-' : '',
+      str = data[0].replace('.', ''),
+      mag = Number(data[1]) + 1
+
+   if (mag < 0) {
+      z = sign + '0.'
+      while (mag++) z += '0'
+      return z + str.replace(/^\-/, '')
+   }
+
+   mag -= str.length
+   while (mag--) z += '0';
+   return str + z;
+}
+
+
+async function unlockWallet(account) {
+   const answers = await inquirer.prompt({
+      type: 'password',
+      name: 'password',
+      message: 'Enter password to continue:'
+   })
+
+   let decryptedKey = crypto.decryptData(account.privateKey, answers.password)
+   decryptedKey = (decryptedKey.slice(0,2) == "0x") ? decryptedKey.slice(2) : decryptedKey
+
+   if(decryptedKey == "") {
+      return console.log(chalk.red.bold('Password is wrong!'))
+   }
+
+   return decryptedKey
+}
+
 
 exports.command = 'swap <from> <to>'
 exports.desc = 'Swap token or coin instantly.'
@@ -95,16 +134,21 @@ exports.handler = async function (argv) {
   const pair = await getPairBySymbol({ a: argv.from, b: argv.to })
   const path = [pair[0].contractAddress, pair[1].contractAddress]
 
-  // return console.log(path)
-
   // setting
   const recipient = (argv.receipt) ? argv.receipt : account.address
   const deadline = (parseInt(Date.now() / 1000) + argv.deadline * 60).toString()
 
   // swap type
   const isFromNative = argv.from === networkData.currencySymbol
-  const isFromToken = argv.from !== networkData.currencySymbol
-  const isBetweenToken = isFromToken && argv.to !== networkData.currencySymbol
+  const isFromToken = argv.from !== networkData.currencySymbol && argv.to === networkData.currencySymbol
+  const isBetweenToken = argv.from !== networkData.currencySymbol && argv.to !== networkData.currencySymbol
+
+  const swapType = isFromNative
+    ? SWAP_ETH_FOR_TOKEN 
+    : (isFromToken ? SWAP_TOKEN_FOR_ETH : SWAP_TOKEN_FOR_TOKEN)
+
+  // return console.log(swapType)
+  const value = (isFromNative) ? w3.utils.toWei(argv.amount) : '0'
 
   let balance = 0
   let allowance = 0
@@ -112,8 +156,11 @@ exports.handler = async function (argv) {
   let finalOut = 0
   let gasLimit = 0
   let gasPrice = 0
+  let decryptedKey = null
 
   const w3 = new Web3()
+
+
   const tasks = new Listr([
       {
          title: 'Checking connection...',
@@ -134,7 +181,7 @@ exports.handler = async function (argv) {
                balance = await getNativeBalance(account.address, networkData.rpc)
             }
             
-            if(isFromToken) {
+            if(isFromToken || isBetweenToken) {
                allowance = await getAllowance({
                   rpcURL: networkData.rpc,
                   contractAddress: pair[0].contractAddress,
@@ -149,75 +196,89 @@ exports.handler = async function (argv) {
             }
          }
       },
-      {
-         title: 'Estimating gas fee & output amount',
-         task: async (ctx, task) => {
-            const inAmount = (isFromNative)
-               ? fromEtherToWei(argv.amount)
-               : BigNumber(`${argv.amount}e${pair[0].decimals}`).toString()
-
-            const minOutProp = await getMinOut({
-               rpcURL: networkData.rpc,
-               contractAddress: provider.contractAddress,
-               amount: inAmount,
-               path: path
-            })
-
-            // store to minimum output for estimate
-            minOut = minOutProp[1]
-            // calculate minimum output with slippage
-            finalOut = calcFinalMinOut(minOutProp[1], argv.slippage)
-
-            // for estimate gas limit
-            if(isFromNative) {
-               gasLimit = await getEstimateGasLimit({
-                  rpcURL: networkData.rpc,
-                  contractAddress: provider.contractAddress,
-                  type: SWAP_ETH_FOR_TOKEN,
-                  value: w3.utils.toWei(argv.amount),
-                  amountOutMin: finalOut.toString(),
-                  path: path,
-                  to: recipient,
-                  from: account.address,
-                  deadline: deadline
-               })
-            }
-
-            if(isBetweenToken) {
-               gasLimit = await getEstimateGasLimit({
-                  rpcURL: networkData.rpc,
-                  contractAddress: provider.contractAddress,
-                  type: SWAP_TOKEN_FOR_TOKEN,
-                  value: '0',
-                  amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
-                  amountOutMin: finalOut.toString(),
-                  path: path,
-                  to: recipient,
-                  from: account.address,
-                  deadline: deadline
-               })
-            } else if(isFromToken) {
-               gasLimit = await getEstimateGasLimit({
-                  rpcURL: networkData.rpc,
-                  contractAddress: provider.contractAddress,
-                  type: SWAP_TOKEN_FOR_ETH,
-                  value: '0',
-                  amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
-                  amountOutMin: finalOut.toString(),
-                  path: path,
-                  to: recipient,
-                  from: account.address,
-                  deadline: deadline
-               })
-            }
-
-            // get current gas price
-            gasPrice = await getGasPrice(networkData.rpc)
-         }
-      }
+      
    ])
 
    await tasks.run()
+
+   if(isFromToken || isBetweenToken) {
+      // approve first if allowance is not enough
+      if(parseFloat(allowance) < parseFloat(argv.amount)) {
+         console.log(chalk.white.bgBlue('\nNeed to approve token'))
+         decryptedKey = await unlockWallet(account)
+
+         await new Listr([{
+            title: 'Approving token for the first time.',
+            task: async () => {
+               const gasLimit2 = await getEstimateGasLimit({
+                  rpcURL: networkData.rpc,
+                  contractAddress: pair[0].contractAddress,
+                  type: APPROVE_TOKEN,
+                  spender: provider.contractAddress,
+                  amount: AMOUNT_ALLOWANCE,
+                  from: account.address
+               })
+
+               // get current gas price
+               gasPrice = await getGasPrice(networkData.rpc)
+
+               await approveToken({
+                  rpcURL: networkData.rpc,
+                  contractAddress: pair[0].contractAddress,
+                  spender: provider.contractAddress,
+                  owner: account.address,
+                  chainId: networkData.chainId,
+                  gasLimit: gasLimit2,
+                  gasPrice: gasPrice,
+                  privateKey: decryptedKey
+               })
+            }
+         }]).run()
+      }
+   }
+
+   await new Listr([{
+      title: 'Estimating gas fee & output amount',
+      task: async (ctx, task) => {
+         const inAmount = (isFromNative)
+            ? fromEtherToWei(argv.amount)
+            : BigNumber(`${argv.amount}e${pair[0].decimals}`).toString()
+
+         const minOutProp = await getMinOut({
+            rpcURL: networkData.rpc,
+            contractAddress: provider.contractAddress,
+            amount: inAmount,
+            path: path
+         })
+
+         // store to minimum output for estimate
+         minOut = minOutProp[1]
+         // calculate minimum output with slippage
+         finalOut = calcFinalMinOut(minOutProp[1], pair[0].decimals, argv.slippage)
+
+         // for estimate gas limit
+         const estParam = {
+            rpcURL: networkData.rpc,
+            contractAddress: provider.contractAddress,
+            type: swapType,
+            value: value,
+            amountOutMin: finalOut.noExponents(),
+            path: path,
+            to: recipient,
+            from: account.address,
+            deadline: deadline
+         }
+
+         if(swapType === SWAP_TOKEN_FOR_ETH || swapType === SWAP_TOKEN_FOR_TOKEN) {
+            estParam.amountIn = inAmount
+         }
+
+         gasLimit = await getEstimateGasLimit(estParam)
+
+         // get current gas price
+         gasPrice = await getGasPrice(networkData.rpc)
+      }
+   }]).run()
 
    const balanceRounded = (isFromNative) 
       ? balance
@@ -248,17 +309,19 @@ exports.handler = async function (argv) {
    console.log(`  Total fee : ${chalk.gray(totalFee)} ${networkData.currencySymbol}`)
    console.log()
 
-   const answers = await inquirer.prompt({
-      type: 'password',
-      name: 'password',
-      message: 'Enter password to continue:'
-   })
+   // ask password to unlock wallet
+   if(decryptedKey === null) {
+      decryptedKey = await unlockWallet(account)
+   } else {
+      const answers = await inquirer.prompt({
+         type: 'confirm',
+         name: 'toConfirmed',
+         message: 'Proceed this transaction?:'
+      })
 
-   let decryptedKey = crypto.decryptData(account.privateKey, answers.password)
-   decryptedKey = (decryptedKey.slice(0,2) == "0x") ? decryptedKey.slice(2) : decryptedKey
-
-   if(decryptedKey == "") {
-      return console.log(chalk.red.bold('Password is wrong!'))
+      if(!answers.toConfirmed) {
+         return console.log('Operation cancelled by user')
+      }
    }
 
    console.log()
@@ -271,7 +334,7 @@ exports.handler = async function (argv) {
       rawData = getSwapEthForTokenData({
          rpcURL: networkData.rpc,
          contractAddress: provider.contractAddress,
-         amountOutMin: finalOut.toString(),
+         amountOutMin: finalOut.noExponents(),
          path: path,
          to: recipient,
          from: account.address,
@@ -284,7 +347,7 @@ exports.handler = async function (argv) {
          rpcURL: networkData.rpc,
          contractAddress: provider.contractAddress,
          amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
-         amountOutMin: finalOut.toString(),
+         amountOutMin: finalOut.noExponents(),
          path: path,
          to: recipient,
          from: account.address,
@@ -297,7 +360,7 @@ exports.handler = async function (argv) {
          rpcURL: networkData.rpc,
          contractAddress: provider.contractAddress,
          amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
-         amountOutMin: finalOut.toString(),
+         amountOutMin: finalOut.noExponents(),
          path: path,
          to: recipient,
          from: account.address,
@@ -307,7 +370,6 @@ exports.handler = async function (argv) {
 
 
 
-   const value = (isFromNative) ? argv.amount : '0'
    
    txSignedParam = {
       rpcURL: networkData.rpc,
@@ -323,34 +385,7 @@ exports.handler = async function (argv) {
    }
 
    
-   if(isFromToken) {
-      // approve first if allowance is not enough
-      if(allowance < parseFloat(argv.amount)) {
-         console.log(chalk.yellow('Approving token for the first time..'))
-
-         const gasLimit2 = await getEstimateGasLimit({
-            rpcURL: networkData.rpc,
-            contractAddress: pair[0].contractAddress,
-            type: APPROVE_TOKEN,
-            spender: provider.contractAddress,
-            amount: AMOUNT_ALLOWANCE,
-            from: account.address
-         })
-
-         await approveToken({
-            rpcURL: networkData.rpc,
-            contractAddress: pair[0].contractAddress,
-            spender: provider.contractAddress,
-            owner: account.address,
-            chainId: networkData.chainId,
-            gasLimit: gasLimit2,
-            gasPrice: gasPrice,
-            privateKey: decryptedKey
-         })
-
-         txSignedParam.incNonce = true
-      }
-   }
+   
 
    txSigned = await signTransaction(txSignedParam)
    

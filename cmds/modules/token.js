@@ -57,7 +57,7 @@ async function getBalance(data) {
 
 function formatAmount(amount, decimals) {
 	const web3 = new Web3()
-	return new BigNumber(amount.toString() + "e" + decimals).c[0]
+	return new BigNumber(amount.toString() + "e" + decimals).toString()
 }
 
 module.exports = {
