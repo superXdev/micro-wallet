@@ -77,6 +77,20 @@ exports.handler = async function (argv) {
    // get network data
    const networkData = await getNetworkById(argv.network)
 
+   const isNativeTransfer = networkData.currencySymbol === argv.symbol
+
+   // token data
+   let tokenData = null
+
+   if(!isNativeTransfer) {
+      tokenData = await getTokenBySymbol(argv.symbol)
+
+      if(tokenData === null) {
+         return console.log(chalk.yellow('Token or coin symbol is not found\nIf token, try to import it first'))
+      }
+   }
+
+
    // estimate gas fee & sign transaction
    let gasLimit = 0
    let gasPrice = 0
@@ -100,15 +114,18 @@ exports.handler = async function (argv) {
          task: async (ctx, task) => {
             let data = null
             // for native transfer
-            if(networkData.currencySymbol === argv.symbol) {
+            if(isNativeTransfer) {
                data = {
                   rpcURL: networkData.rpc,
                   type: TRANSFER_COIN
                }
             } else {
                // for token transfer
-               // get token data first
-               const tokenData = await getTokenBySymbol(argv.symbol)
+
+               if(tokenData === null) {
+                  return console.log('')
+               }
+
                data = {
                   rpcURL: networkData.rpc,
                   type: TRANSFER_TOKEN,
@@ -158,7 +175,7 @@ exports.handler = async function (argv) {
    console.log(`  Gas price : ${chalk.gray(fromWeiToGwei(gasPrice))} gwei`)
    console.log(`  Total fee : ${chalk.gray(totalFee)} ETH`)
    // if native transfer show total of total fee + amount to send
-   if(networkData.currencySymbol === argv.symbol)
+   if(isNativeTransfer)
       console.log(`  Total     : ${chalk.yellow(total)} ETH\n`)
 
    console.log()
@@ -179,7 +196,7 @@ exports.handler = async function (argv) {
    console.log()
 
    let txSigned = null
-   if(networkData.currencySymbol === argv.symbol) {
+   if(isNativeTransfer) {
       // sign
       txSigned = await signTransaction({
          rpcURL: networkData.rpc,
