@@ -1,9 +1,5 @@
 const chalk = require('chalk')
-const { importToken } = require('../modules/token')
-const { getConnectionStatus, getNetworkById } = require('../modules/network')
-const web3 = require('../../utils/web3')
-const inquirer = require('inquirer')
-const Listr = require('listr')
+const { saveAddress } = require('../modules/book')
 
 
 exports.command = 'add'
@@ -17,12 +13,18 @@ exports.builder = {
   },
   name: {
     demand: true,
-    type: 'number',
+    type: 'string',
     alias: 'n',
     desc: 'Name or identifier'
   },
 }
 
 exports.handler = async function (argv) {
+   const result = await saveAddress(argv.name, argv.address)
 
+   if(!result) {
+      return console.log('Address is not valid!')
+   }
+
+   console.log(chalk.green('Address successfully saved'))
 }
