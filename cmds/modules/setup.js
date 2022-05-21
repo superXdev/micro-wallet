@@ -128,9 +128,16 @@ const pairDefaultData = [
 ]
 
 async function runSetup() {
+   // reset database scheme
 	await sequelize.sync({ force: true })
+
+   // insert network data
 	await Network.bulkCreate(networkDefaultData)
+
+   // insert dex provider data
    await Provider.bulkCreate(providerDefaultData)
+
+   // insert pair data
    await Pair.bulkCreate(pairDefaultData)
 }
 

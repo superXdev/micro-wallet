@@ -111,6 +111,17 @@ const Pair = sequelize.define('pair', {
   }
 })
 
+const Book = sequelize.define('book', {
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  address: {
+    type: DataTypes.STRING,
+    allowNull: false
+  }
+})
+
 Network.hasMany(Token, { as: 'tokens' })
 Token.belongsTo(Network, {
   foreignKey: "networkId",
@@ -123,5 +134,6 @@ module.exports = {
   Network,
   Token,
   Provider,
-  Pair
+  Pair,
+  Book
 }
