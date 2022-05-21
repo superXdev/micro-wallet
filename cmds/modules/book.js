@@ -18,6 +18,12 @@ async function saveAddress(name, address) {
 }
 
 
+async function getAll() {
+	return await Book.findAll()
+}
+
+
 module.exports = {
-	saveAddress
+	saveAddress,
+	getAll
 }
