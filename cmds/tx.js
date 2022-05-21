@@ -51,6 +51,7 @@ exports.handler = async function (argv) {
    let gasPercentUsed = 0
    let time
    let isFailed = false
+   let totalFee = (result.gas * result.gasPrice).toString()
 
    if(result.blockHash === null) {
       txReceipt.status = chalk.gray.bold('Pending')
@@ -62,6 +63,7 @@ exports.handler = async function (argv) {
       const date = new Date(block.timestamp * 1000).toLocaleString()
       time = `${timeAgo.format(block.timestamp * 1000)} (${date})`
       isFailed = (result2.status) ? false : true
+      totalFee = (result2.gasUsed * result.gasPrice).toString()
       txReceipt.status = (result2.status) ? chalk.green.bold('Success') : chalk.red.bold('Failed')
    }
 
@@ -85,4 +87,5 @@ exports.handler = async function (argv) {
    console.log(` Value      : ${chalk.yellow(web3.utils.fromWei(result.value))} ${network.currencySymbol}`)
    console.log(` Gas limit  : ${result.gas} (${chalk.magenta(gasPercentUsed+'%')} used)`)
    console.log(` Gas price  : ${chalk.gray(web3.utils.fromWei(result.gasPrice, 'gwei'))} GWEI`)
+   console.log(` Total fee  : ${chalk.gray(web3.utils.fromWei(totalFee))} ${network.currencySymbol}`)
 }
