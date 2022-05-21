@@ -5,7 +5,7 @@ const networkDefaultData = [
    // mainnet network
    {
       networkName: "Ethereum",
-      rpcURL: "https://mainnet.infura.io/v3/7699ff9dd25b4694bc711ca3abcdec3d",
+      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/eth/mainnet",
       currencySymbol: "ETH",
       explorerURL: "https://etherscan.io",
       chainId: 1,
@@ -13,7 +13,7 @@ const networkDefaultData = [
    },
    {
       networkName: "Polygon Mainnet",
-      rpcURL: "https://polygon-rpc.com/",
+      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/polygon/mainnet",
       currencySymbol: "MATIC",
       explorerURL: "https://polygonscan.com",
       chainId: 137,
@@ -21,7 +21,7 @@ const networkDefaultData = [
    },
    {
       networkName: "Avalanche C-Chain",
-      rpcURL: "https://api.avax.network/ext/bc/C/rpc",
+      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/avalanche/mainnet",
       currencySymbol: "AVAX",
       explorerURL: "https://snowtrace.io",
       chainId: 43114,
@@ -29,7 +29,7 @@ const networkDefaultData = [
    },
    {
       networkName: "Binance Smart Chain",
-      rpcURL: "https://bsc-dataseed1.binance.org",
+      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/bsc/mainnet",
       currencySymbol: "BNB",
       explorerURL: "https://bscscan.com",
       chainId: 56,
@@ -37,7 +37,7 @@ const networkDefaultData = [
    },
    {
       networkName: "Fantom Opera",
-      rpcURL: "https://rpc.ftm.tools/",
+      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/fantom/mainnet",
       currencySymbol: "FTM",
       explorerURL: "https://ftmscan.com/",
       chainId: 250,
@@ -46,7 +46,7 @@ const networkDefaultData = [
    // testnet network
    {
       networkName: "Polygon Testnet Mumbai",
-      rpcURL: "https://matic-mumbai.chainstacklabs.com",
+      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/polygon/mumbai",
       currencySymbol: "MATIC",
       explorerURL: "https://mumbai.polygonscan.com",
       chainId: 80001,
@@ -54,7 +54,7 @@ const networkDefaultData = [
    },
    {
       networkName: "Ropsten Test Network",
-      rpcURL: "https://ropsten.infura.io/v3/7699ff9dd25b4694bc711ca3abcdec3d",
+      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/eth/ropsten",
       currencySymbol: "ETH",
       explorerURL: "https://ropsten.etherscan.io",
       chainId: 3,
@@ -62,7 +62,7 @@ const networkDefaultData = [
    },
    {
       networkName: "Avalanche Fuji Testnet",
-      rpcURL: "https://api.avax-test.network/ext/bc/C/rpc",
+      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/avalanche/testnet",
       currencySymbol: "AVAX",
       explorerURL: "https://testnet.snowtrace.io",
       chainId: 43113,
@@ -70,7 +70,7 @@ const networkDefaultData = [
    },
    {
       networkName: "Binance Smart Chain Testnet",
-      rpcURL: "https://data-seed-prebsc-1-s1.binance.org:8545",
+      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/bsc/testnet",
       currencySymbol: "BNB",
       explorerURL: "https://testnet.bscscan.com",
       chainId: 97,
@@ -94,6 +94,7 @@ const networkDefaultData = [
 ]
 
 const providerDefaultData = [
+   // sushiswap testnet
    {
       providerName: "Sushiswap Ropsten Testnet",
       contractAddress: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
@@ -102,6 +103,7 @@ const providerDefaultData = [
 ]
 
 const pairDefaultData = [
+   // testnet token
    {
       name: "Wrapped Ether",
       symbol: "ETH",
