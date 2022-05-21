@@ -4,6 +4,8 @@ const chalk = require('chalk')
 const Web3 = require('web3')
 const TimeAgo = require('javascript-time-ago')
 const en = require('javascript-time-ago/locale/en.json')
+const Listr = require('listr')
+
 
 async function getRevertReason(txHash, rpcURL){
   const web3 = new Web3(rpcURL)
@@ -41,38 +43,50 @@ exports.handler = async function (argv) {
    TimeAgo.addDefaultLocale(en)
    const timeAgo = new TimeAgo('en-US')
 
-   const result = await web3.eth.getTransaction(argv.hash)
-
-   if(result === null) {
-      return console.log('The transaction is not found')
-   }
-
+   let result = null
    let txReceipt = {}
    let gasPercentUsed = 0
-   let time
+   let time = null
    let isFailed = false
-   let totalFee = (result.gas * result.gasPrice).toString()
+   let totalFee = 0
+   let reason = null
 
-   if(result.blockHash === null) {
-      txReceipt.status = chalk.gray.bold('Pending')
-      time = '-'
-   } else {
-      const result2 = await web3.eth.getTransactionReceipt(argv.hash)
-      const block = await web3.eth.getBlock(result.blockNumber)
-      gasPercentUsed = parseFloat(result2.gasUsed / result.gas * 100).toFixed(2)
-      const date = new Date(block.timestamp * 1000).toLocaleString()
-      time = `${timeAgo.format(block.timestamp * 1000)} (${date})`
-      isFailed = (result2.status) ? false : true
-      totalFee = (result2.gasUsed * result.gasPrice).toString()
-      txReceipt.status = (result2.status) ? chalk.green.bold('Success') : chalk.red.bold('Failed')
-   }
+   await new Listr([{
+      title: 'Fetching data from blockchain',
+      task: async () => {
+         // get transaction information
+         result = await web3.eth.getTransaction(argv.hash)
 
-   
+         // if transaction not found
+         if(result === null) {
+            return console.log('The transaction is not found')
+         }
 
-   let reason
-   if(isFailed) {
-      reason = await getRevertReason(argv.hash, network.rpc)
-   }
+         totalFee = (result.gas * result.gasPrice).toString()
+
+         // pending transaction
+         if(result.blockHash === null) {
+            txReceipt.status = chalk.gray.bold('Pending')
+            time = '-'
+         } else {
+            // success transaction
+            const result2 = await web3.eth.getTransactionReceipt(argv.hash)
+            const block = await web3.eth.getBlock(result.blockNumber)
+            gasPercentUsed = parseFloat(result2.gasUsed / result.gas * 100).toFixed(2)
+            const date = new Date(block.timestamp * 1000).toLocaleString()
+            time = `${timeAgo.format(block.timestamp * 1000)} (${date})`
+            isFailed = (result2.status) ? false : true
+            totalFee = (result2.gasUsed * result.gasPrice).toString()
+            txReceipt.status = (result2.status) ? chalk.green.bold('Success') : chalk.red.bold('Failed')
+         }
+
+         
+         if(isFailed) {
+            reason = await getRevertReason(argv.hash, network.rpc)
+         }
+      }
+   }]).run()
+
 
    console.log(chalk.white.bold("Transaction details"))
    console.log('========')

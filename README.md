@@ -29,20 +29,24 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
   - [x] import
   - [x] balance
   - [x] remove
-- [ ] interactive menu
 - [ ] swap for each networks
   - [ ] ethereum
   - [ ] bsc
   - [ ] polygon
   - [ ] avalanche
   - [ ] fantom
-  - [ ] ropsten
+  - [x] ropsten
 - [x] tx check
+- [x] book address
+  - [x] add
+  - [x] list
+  - [x] remove
 - [ ] transactions history
 - [ ] ENS support
 - [ ] smart contract
   - [ ] deploy (erc21 / erc721 / custom)
   - [ ] verify on explorer
+- [ ] interactive menu
 - [ ] automated script transactions
 - [ ] liquidity management
 - [ ] bridge transfer
