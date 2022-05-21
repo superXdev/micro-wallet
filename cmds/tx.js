@@ -35,8 +35,9 @@ exports.builder = (yargs) => {
 
 
 exports.handler = async function (argv) {
+   // get network data
    const network = await getNetworkById(argv.network)
-
+   // web3js instances
    const web3 = new Web3(network.rpc)
 
    // time-ago initialize

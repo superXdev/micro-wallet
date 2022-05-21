@@ -4,14 +4,15 @@ const { runSetup } = require('../../cmds/modules/setup');
 
 
 describe("Network modules", () => {
-	before((done) => {
+	before(function(done) {
+		this.timeout(5000)
 		runSetup().then(() => done())
 	})
 
 	it("getNetworkList: should return more than 0", async () => {
 		const networks = await network.getNetworkList()
 		expect(networks).to.have.lengthOf.above(0)
-	})
+	}).timeout(5000)
 
 	it("addNetwork: should return true", async () => {
 		const result = await network.addNetwork("Test", 'https://test.com/rpc', 1, "TT", undefined, true)
@@ -34,7 +35,7 @@ describe("Network modules", () => {
 	})
 
 	it("getConnectionStatus: should return number", async () => {
-		const ethRpc = 'https://mainnet.infura.io/v3/7699ff9dd25b4694bc711ca3abcdec3d'
+		const ethRpc = 'https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/eth/mainnet'
 		const result = await network.getConnectionStatus(ethRpc)
 		expect(result).to.be.an('number')
 	}).timeout(6000)

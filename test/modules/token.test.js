@@ -5,7 +5,9 @@ const { runSetup } = require('../../cmds/modules/setup');
 
 
 describe("Token modules", () => {
-	before((done) => {
+
+	before(function(done) {
+		this.timeout(5000)
 		runSetup().then(() => done())
 	})
 
@@ -18,7 +20,7 @@ describe("Token modules", () => {
 			networkId: 7
 		})
 		expect(result).to.be.equal(1)
-	})
+	}).timeout(5000)
 
 	it("getTokenBySymbol: should return token data", async () => {
 		const result = await token.getTokenBySymbol('USDC')

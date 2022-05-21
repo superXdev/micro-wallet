@@ -7,7 +7,9 @@ const { runSetup } = require('../../cmds/modules/setup');
 
 
 describe("Balance modules", () => {
-	before((done) => {
+
+	before(function(done) {
+		this.timeout(5000)
 		runSetup().then(() => done())
 	})
 
@@ -24,7 +26,7 @@ describe("Balance modules", () => {
          })
 
 		expect(balance).to.be.equal('0')
-	}).timeout(5000)
+	}).timeout(10000)
 
 	it("getBalance: should return token balance", async () => {
 		// import testnet token

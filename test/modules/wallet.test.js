@@ -5,7 +5,8 @@ const web3 = require('../../utils/web3');
 const { runSetup } = require('../../cmds/modules/setup');
 
 describe("Wallet modules", () => {
-	before((done) => {
+	before(function(done) {
+		this.timeout(5000)
 		runSetup().then(() => done())
 		
 	})

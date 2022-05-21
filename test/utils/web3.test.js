@@ -22,7 +22,7 @@ describe("Web3 utility", () => {
 	it("getTokenInfo: should return token property", async () => {
 		const result = await getTokenInfo(
 			'0x45c45697f64a5b8aba1a3300ac8db568a36b4666',
-			'https://ropsten.infura.io/v3/7699ff9dd25b4694bc711ca3abcdec3d'
+			'https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/eth/ropsten'
 		)
 		expect(result).to.have.own.property('name')
 		expect(result).to.have.own.property('symbol')
