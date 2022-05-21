@@ -23,7 +23,8 @@ exports.handler = async function (argv) {
    const result = await saveAddress(argv.name, argv.address)
 
    if(!result) {
-      return console.log('Address is not valid!')
+      return console.log(`Address is not valid 
+or name not alpha numeric characters`)
    }
 
    console.log(chalk.green('Address successfully saved'))

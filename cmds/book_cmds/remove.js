@@ -1,28 +1,24 @@
 const chalk = require('chalk')
-const { importToken } = require('../modules/token')
-const { getConnectionStatus, getNetworkById } = require('../modules/network')
-const web3 = require('../../utils/web3')
-const inquirer = require('inquirer')
-const Listr = require('listr')
+const { removeAddress } = require('../modules/book')
 
 
 exports.command = 'remove'
 exports.desc = 'Remove an address from book'
 exports.builder = {
-  address: {
-    demand: true,
-    type: 'string',
-    alias: 'a',
-    desc: 'An wallet address'
-  },
   name: {
     demand: true,
-    type: 'number',
+    type: 'string',
     alias: 'n',
     desc: 'Name or identifier'
   },
 }
 
 exports.handler = async function (argv) {
+   const result = await removeAddress(argv.name)
 
+   if(result) {
+      return console.log(chalk.green('Successfully deleted'))
+   }
+
+   console.log('Not found!')
 }
