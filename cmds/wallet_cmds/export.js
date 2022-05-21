@@ -1,5 +1,5 @@
 const chalk = require('chalk')
-const { exportWallet } = require('../modules/wallet')
+const { exportWallet, exportWalletJson } = require('../modules/wallet')
 const inquirer = require('inquirer')
 
 
@@ -12,9 +12,26 @@ exports.builder = {
     alias: 'n',
     desc: 'Set your wallet name or identifier'
   },
+  json: {
+    type: 'boolean',
+    desc: 'Export decrypted wallet to json file'
+  },
 }
 
-exports.handler = function (argv) {
+exports.handler = async function (argv) {
+
+   if(argv.json) {
+      const jsonExported = await exportWalletJson(argv.name)
+
+      if(jsonExported.success) {
+         return console.log(chalk.green('Successfully exported wallet to JSON file'))
+      } else {
+         return console.log(jsonExported.message)
+      }
+   }
+
+   console.log(chalk.blue.bold('Export your wallet\n'))
+
    const questions = [
      {
        type: 'password',
@@ -22,8 +39,6 @@ exports.handler = function (argv) {
        message: "Enter password:",
     }
    ]
-
-   console.log(chalk.blue.bold('Export your wallet\n'))
 
    inquirer.prompt(questions).then((answers) => {
       exportWallet(argv.name, answers.password).then((exported) => {

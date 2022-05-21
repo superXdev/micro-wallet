@@ -1,6 +1,7 @@
 const { Wallet } = require('../../utils/database')
 const web3 = require('../../utils/web3')
 const crypto = require('../../utils/crypto')
+const fs = require('fs')
 
 
 // get list of all wallet
@@ -69,6 +70,29 @@ async function removeWallet(walletName) {
    return result
 }
 
+
+async function exportWalletJson(walletName) {
+   const data = await Wallet.findOne({
+      where: { walletName: walletName }
+   })
+
+   if(data === null) {
+      return { success: false, message: 'Wallet is not found' }
+   }
+
+   const finalData = {
+      name: walletName,
+      address: data.address,
+      privateKey: data.privateKey
+   }
+
+   fs.writeFile(`./${walletName}.json`, JSON.stringify(finalData, null, 3), err => {
+      return { success: false, message: 'Wallet can not be saved' }
+   })
+
+   return { success: true, }
+}
+
 module.exports = {
   createWallet,
   isWalletExists,
@@ -76,5 +100,6 @@ module.exports = {
   importWallet,
   getWalletList,
   removeWallet,
-  getWalletByName
+  getWalletByName,
+  exportWalletJson
 }
