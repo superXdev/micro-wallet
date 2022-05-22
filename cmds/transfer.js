@@ -90,7 +90,6 @@ exports.handler = async function (argv) {
       }
    }
 
-
    // estimate gas fee & sign transaction
    let gasLimit = 0
    let gasPrice = 0

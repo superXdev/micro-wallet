@@ -10,7 +10,8 @@ const {
 	APPROVE_TOKEN,
 	AMOUNT_ALLOWANCE,
 	SWAP_TOKEN_FOR_ETH,
-	SWAP_TOKEN_FOR_TOKEN
+	SWAP_TOKEN_FOR_TOKEN,
+	DEPLOY_ERC20
 } = require('./constants')
 
 // generate new account
@@ -118,6 +119,14 @@ async function getEstimateGasLimit(data) {
 		).estimateGas({ from: data.from })
 	}
 
+	if(data.type === DEPLOY_ERC20) {
+		const newContract = new web3.eth.Contract(erc20Abi)
+		return await newContract.deploy({
+	        data: '0x' + data.bytecode,
+	        arguments: data.arguments
+	    }).estimateGas({ from: data.from })
+	}
+
 	// transfer native
 	return 21000
 }
@@ -183,6 +192,17 @@ function getApproveData(data) {
 		data.spender,
 		AMOUNT_ALLOWANCE
 	).encodeABI()
+}
+
+// get data for approve TOKEN or spend it
+function getContractData(data) {
+	const web3 = new Web3(data.rpcURL)
+	const newContract = new web3.eth.Contract(erc20Abi)
+
+	return newContract.deploy({
+        data: '0x' + data.bytecode,
+        arguments: data.arguments
+    }).encodeABI()
 }
 
 // get current gas price
@@ -257,5 +277,6 @@ module.exports = {
 	getSwapEthForTokenData,
 	getApproveData,
 	getSwapTokenForEthData,
-	getSwapTokenForTokenData
+	getSwapTokenForTokenData,
+	getContractData
 }

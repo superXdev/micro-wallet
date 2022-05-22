@@ -5,6 +5,7 @@ const AMOUNT_ALLOWANCE = '11579208923731619542357098500'
 const SWAP_ETH_FOR_TOKEN = "swap_eth_for_token"
 const SWAP_TOKEN_FOR_ETH = "swap_token_for_eth"
 const SWAP_TOKEN_FOR_TOKEN = "swap_token_for_token"
+const DEPLOY_ERC20 = "deploy_erc20"
 
 module.exports = {
 	TRANSFER_COIN,
@@ -13,5 +14,6 @@ module.exports = {
 	SWAP_ETH_FOR_TOKEN,
 	SWAP_TOKEN_FOR_ETH,
 	SWAP_TOKEN_FOR_TOKEN,
-	AMOUNT_ALLOWANCE
+	AMOUNT_ALLOWANCE,
+	DEPLOY_ERC20
 }

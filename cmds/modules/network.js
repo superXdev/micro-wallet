@@ -37,6 +37,7 @@ async function getNetworkById(id) {
    })
 
    return {
+      id: result.id,
       name: result.networkName,
       rpc: result.rpcURL,
       currencySymbol: result.currencySymbol,
@@ -54,7 +55,7 @@ async function getBlockNumber(rpc) {
 // check network connection
 async function getConnectionStatus(rpc) {
    try {
-      return await asyncCallWithTimeout(getBlockNumber(rpc), 3000)
+      return await asyncCallWithTimeout(getBlockNumber(rpc), 5000)
    } catch(err) {
       return null;
    }
