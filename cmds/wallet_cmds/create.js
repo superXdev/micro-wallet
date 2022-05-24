@@ -14,8 +14,19 @@ exports.builder = {
   },
 }
 
-exports.handler = function (argv) {
-  const questions = [
+exports.handler = async function (argv) {
+   // check walle name
+   const walletExists = await isWalletExists(argv.name)
+
+   // return warning when wallet name already exists
+   if(walletExists) {
+      return console.log(`Wallet name already exists`)
+   }
+
+   console.log(chalk.blue.bold('Create new wallet\n'))
+
+   // password questions
+   const questions = [
    {
      type: 'password',
      name: 'password',
@@ -27,7 +38,7 @@ exports.handler = function (argv) {
 
        return 'Password minimum length is 8 characters';
      }
-  },{
+   },{
      type: 'password',
      name: 'cpassword',
      message: 'Re-type password:',
@@ -38,24 +49,16 @@ exports.handler = function (argv) {
 
        return 'Password does not match';
      }
-  }]
+   }]
+   // ask user to set password
+   const answers = await inquirer.prompt(questions)
 
-  isWalletExists(argv.name).then(result => {
-    if(result === true) {
-      console.log(chalk.red.bold('Wallet name already exists'))
-    } else {
-      console.log(chalk.blue.bold('Create new wallet\n'))
-
-      inquirer.prompt(questions).then((answers) => {
-        createWallet(argv.name, answers.password).then((account) => {
-          console.log(chalk.green('\nWallet created!\n'))
-          console.log(`Address     : ${account.address}\nPrivate key : ${account.privateKey}\n`)
-          console.log('Please backup the private key in a safe place.')
-        })
-      })
-    }
-  })
-
-  
+   // create wallet & insert into database
+   const account = await createWallet(argv.name, answers.password)
+   
+   // show result
+   console.log(chalk.green('\nWallet created!\n'))
+   console.log(`Address     : ${account.address}\nPrivate key : ${account.privateKey}\n`)
+   console.log('Please backup the private key in a safe place.')
   
 }
