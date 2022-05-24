@@ -1,7 +1,5 @@
 const chalk = require('chalk')
 const fs = require('fs')
-const { verifyContract, getApiUrl } = require('../modules/sc')
-const { getNetworkById } = require('../modules/network')
 const config = require('../../config.json')
 const { rootPath } = require('../../utils/path')
 
