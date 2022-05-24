@@ -2,7 +2,7 @@ const chalk = require('chalk')
 const fs = require('fs')
 const { verifyContract, getApiUrl } = require('../modules/sc')
 const { getNetworkById } = require('../modules/network')
-
+const config = require('../../config.json')
 
 
 exports.command = 'verify'
@@ -35,7 +35,7 @@ exports.handler = async function (argv) {
 		erc20: {
 			url: getApiUrl(networkData.currencySymbol, networkData.isTestnet),
 			sourceCode: fs.readFileSync('./contracts/ERC20Token.sol').toString(),
-			apiKey: '',
+			apiKey: config.BSCSCAN_API,
 			address: argv.address,
 			contractName: 'ERC20Token',
 			compilerversion: 'v0.8.14+commit.80d49f37',
