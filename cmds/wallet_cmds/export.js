@@ -14,7 +14,7 @@ exports.builder = {
   },
   json: {
     type: 'boolean',
-    desc: 'Export decrypted wallet to json file'
+    desc: 'Export encrypted wallet to json file'
   },
 }
 
