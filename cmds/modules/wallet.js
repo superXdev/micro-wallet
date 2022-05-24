@@ -77,7 +77,6 @@ async function removeWallet(walletName) {
    return result
 }
 
-
 async function exportWalletJson(walletName) {
    const data = await Wallet.findOne({
       where: { walletName: walletName }
@@ -88,7 +87,7 @@ async function exportWalletJson(walletName) {
    }
 
    const finalData = {
-      name: walletName,
+      walletName: walletName,
       address: data.address,
       privateKey: data.privateKey
    }
