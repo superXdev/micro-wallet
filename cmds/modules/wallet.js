@@ -51,11 +51,18 @@ async function exportWallet(walletName, password) {
    const account = await Wallet.findOne({ where: { walletName: walletName } })
 
    if(account === null) {
-      return null
+      return { success: false, message: 'Wallet not found' }
+   }
+
+   const decryptedKey = crypto.decryptData(account.privateKey, password)
+
+   if(decryptedKey === '') {
+      return { success: false, message: 'Password is wrong' }
    }
 
    return {
-      privateKey: crypto.decryptData(account.privateKey, password)
+      success: true,
+      privateKey: decryptedKey
    }
 }
 
