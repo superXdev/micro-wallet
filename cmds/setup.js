@@ -1,4 +1,4 @@
-const { runSetup } = require('./modules/setup')
+const { runSetup, initConfigFile } = require('./modules/setup')
 const { rootPath } = require('../utils/path')
 const fs = require('fs')
 const chalk = require('chalk')
@@ -15,6 +15,7 @@ exports.builder = {
 
 exports.handler = function (argv) {
    if(argv.reset || !fs.existsSync(`${rootPath()}/user.db`)) {
+      initConfigFile()
       runSetup().then(() => console.log(chalk.yellow.bold("Everything is ready!")))
    } else {
       console.log("Already setting up")

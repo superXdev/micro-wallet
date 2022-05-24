@@ -4,8 +4,9 @@ node_modules/
 # test output
 .nyc_output/
 
-# local database
+# local database or config
 user.db
 user.test.db
+config.json
 
 test.js

@@ -1,4 +1,6 @@
 const { sequelize, Network, Provider, Pair } = require('../../utils/database')
+const { rootPath } = require('../../utils/path')
+const fs = require('fs')
 
 
 const networkDefaultData = [
@@ -141,6 +143,17 @@ async function runSetup() {
    await Pair.bulkCreate(pairDefaultData)
 }
 
+function initConfigFile() {
+   // config object
+   const config = {
+      BSCSCAN_API: "",
+      ETHERSCAN_API: ""
+   }
+
+   fs.writeFile(`${rootPath()}/config.json`, JSON.stringify(config, null, 3), { flag: 'w' }, err => {})
+}
+
 module.exports = {
-	runSetup
+	runSetup,
+   initConfigFile
 }
