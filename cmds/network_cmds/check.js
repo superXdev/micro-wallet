@@ -1,4 +1,4 @@
-const { getConnectionStatus } = require('../modules/network')
+const { getConnectionStatus, getNetworkById } = require('../modules/network')
 const { Network } = require('../../utils/database')
 const chalk = require('chalk')
 
@@ -15,7 +15,7 @@ exports.builder = {
 }
 
 exports.handler = async function (argv) {
-   const networkData = await Network.findOne({ where: { id: argv.n } })
+   const networkData = await getNetworkById(argv.network)
    const status = await getConnectionStatus(networkData.rpcURL)
 
    // console.log(status)

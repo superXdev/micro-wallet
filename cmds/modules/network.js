@@ -32,19 +32,7 @@ async function getNetworkList(testnet = false) {
 
 // get a network by id
 async function getNetworkById(id) {
-   const result = await Network.findOne({
-      where: { id: id }
-   })
-
-   return {
-      id: result.id,
-      name: result.networkName,
-      rpc: result.rpcURL,
-      currencySymbol: result.currencySymbol,
-      chainId: result.chainId,
-      explorerURL: result.explorerURL,
-      isTestnet: result.isTestnet
-   }
+   return await Network.findByPk(id)
 }
 
 async function getBlockNumber(rpc) {
@@ -73,6 +61,9 @@ async function addNetwork(param) {
       }
 
       if(param.explorer !== '') {
+         if(param.explorer.endsWith('/')) {
+            param.explorer = param.explorer.slice(0, param.explorer.length - 1)
+         }
          data.explorerURL = param.explorer
       }
 
