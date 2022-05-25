@@ -46,6 +46,12 @@ async function getTokenBalance(userAddress, contractAddress, rpc) {
 	return await token.methods.balanceOf(userAddress).call()
 }
 
+// get chain id
+async function getChainId(rpc) {
+	const web3 = new Web3(rpc)
+	return await web3.eth.getChainId()
+}
+
 // get token information from specific contract
 // address and network
 async function getTokenInfo(address, rpc) {
@@ -278,5 +284,6 @@ module.exports = {
 	getApproveData,
 	getSwapTokenForEthData,
 	getSwapTokenForTokenData,
-	getContractData
+	getContractData,
+	getChainId
 }

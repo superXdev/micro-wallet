@@ -62,25 +62,18 @@ async function getConnectionStatus(rpc) {
 }
 
 // add new network
-async function addNetwork(name, rpc, chainId, symbol, explorer, testnet) {
-   if(!validator.isURL(rpc, { require_protocol: true, require_host: true })) {
-      return {
-         success: false,
-         message: "URL is not valid"
-      }
-   }
-
+async function addNetwork(param) {
    try {
       const data = {
-         networkName: name,
-         rpcURL: rpc,
-         currencySymbol: symbol,
-         chainId: chainId,
-         isTestnet: testnet
+         networkName: param.name,
+         rpcURL: param.rpc,
+         currencySymbol: param.symbol,
+         chainId: param.chainId,
+         isTestnet: param.isTestnet
       }
 
-      if(explorer !== undefined) {
-         data.explorerURL = explorer
+      if(param.explorer !== '') {
+         data.explorerURL = param.explorer
       }
 
       await Network.create(data)
