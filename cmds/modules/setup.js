@@ -55,11 +55,11 @@ const networkDefaultData = [
       isTestnet: true
    },
    {
-      networkName: "Ropsten Test Network",
-      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/eth/ropsten",
+      networkName: "Goerli Testnet",
+      rpcURL: "https://goerli.infura.io/v3/7699ff9dd25b4694bc711ca3abcdec3d",
       currencySymbol: "ETH",
-      explorerURL: "https://ropsten.etherscan.io",
-      chainId: 3,
+      explorerURL: "https://goerli.etherscan.io",
+      chainId: 5,
       isTestnet: true
    },
    {
