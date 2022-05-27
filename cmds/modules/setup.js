@@ -38,10 +38,18 @@ const networkDefaultData = [
       isTestnet: false
    },
    {
+      networkName: "Klaytn Mainnet",
+      rpcURL: "https://public-node-api.klaytnapi.com/v1/cypress",
+      currencySymbol: "KLAY",
+      explorerURL: "https://scope.klaytn.com",
+      chainId: 8217,
+      isTestnet: false
+   },
+   {
       networkName: "Fantom Opera",
       rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/fantom/mainnet",
       currencySymbol: "FTM",
-      explorerURL: "https://ftmscan.com/",
+      explorerURL: "https://ftmscan.com",
       chainId: 250,
       isTestnet: false
    },
@@ -84,6 +92,14 @@ const networkDefaultData = [
       currencySymbol: "FTM",
       explorerURL: "https://testnet.ftmscan.com",
       chainId: 4002,
+      isTestnet: true
+   },
+   {
+      networkName: "Klaytn Baobab",
+      rpcURL: "https://api.baobab.klaytn.net:8651/",
+      currencySymbol: "KLAY",
+      explorerURL: "https://baobab.scope.klaytn.com",
+      chainId: 1001,
       isTestnet: true
    },
    {

@@ -85,39 +85,45 @@ exports.builder = (yargs) => {
 } 
 
 exports.handler = async function (argv) {
-  // get account first
-  const account = await getWalletByName(argv.wallet)
-  const networkData = await getNetworkById(argv.network)
+   // get account first
+   const account = await getWalletByName(argv.wallet)
+   const networkData = await getNetworkById(argv.network)
 
-  // swap provider & path direction
-  const provider = await getProviderByNetwork(argv.network)
-  const pair = await getPairBySymbol({ a: argv.from, b: argv.to })
-  const path = [pair[0].contractAddress, pair[1].contractAddress]
+   // swap provider & path direction
+   const provider = await getProviderByNetwork(argv.network)
+   const pair = await getPairBySymbol({ a: argv.from, b: argv.to })
+   const path = [pair[0].contractAddress, pair[1].contractAddress]
 
-  // setting
-  const recipient = (argv.receipt) ? await getDestinationAddress(argv.receipt) : account.address
-  const deadline = (parseInt(Date.now() / 1000) + argv.deadline * 60).toString()
+   // setting
+   const recipient = (argv.receipt) ? await getDestinationAddress(argv.receipt) : account.address
 
-  // swap type
-  const isFromNative = argv.from === networkData.currencySymbol
-  const isFromToken = argv.from !== networkData.currencySymbol && argv.to === networkData.currencySymbol
-  const isBetweenToken = argv.from !== networkData.currencySymbol && argv.to !== networkData.currencySymbol
+   // check if recipient is valid
+   if(recipient === null) {
+      return console.log('Recipient identifier is not valid')
+   }
 
-  const swapType = isFromNative
+   const deadline = (parseInt(Date.now() / 1000) + argv.deadline * 60).toString()
+
+   // swap type
+   const isFromNative = argv.from === networkData.currencySymbol
+   const isFromToken = argv.from !== networkData.currencySymbol && argv.to === networkData.currencySymbol
+   const isBetweenToken = argv.from !== networkData.currencySymbol && argv.to !== networkData.currencySymbol
+
+   const swapType = isFromNative
     ? SWAP_ETH_FOR_TOKEN 
     : (isFromToken ? SWAP_TOKEN_FOR_ETH : SWAP_TOKEN_FOR_TOKEN)
 
-  // return console.log(swapType)
-  const value = (isFromNative) ? fromEtherToWei(argv.amount) : '0'
+   // return console.log(swapType)
+   const value = (isFromNative) ? fromEtherToWei(argv.amount) : '0'
 
-  // transaction input
-  let inputTransaction = {}
+   // transaction input
+   let inputTransaction = {}
 
-  // decrypted private key
-  let decryptedKey = null
+   // decrypted private key
+   let decryptedKey = null
 
-  // tasks to checking connection & balance
-  const tasks = new Listr([
+   // tasks to checking connection & balance
+   const tasks = new Listr([
       {
          title: 'Checking connection...',
          task: async (ctx, task) => {
