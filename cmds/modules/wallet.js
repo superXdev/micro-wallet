@@ -1,6 +1,7 @@
 const { Wallet } = require('../../utils/database')
 const web3 = require('../../utils/web3')
 const crypto = require('../../utils/crypto')
+const inquirer = require('inquirer')
 const fs = require('fs')
 
 
@@ -9,6 +10,24 @@ async function getWalletList() {
    const result = await Wallet.findAll()
 
    return result
+}
+
+// unlock wallet to get decrypted private key
+async function unlockWallet(account) {
+   const answers = await inquirer.prompt({
+      type: 'password',
+      name: 'password',
+      message: 'Enter password to continue:'
+   })
+
+   let decryptedKey = crypto.decryptData(account.privateKey, answers.password)
+   decryptedKey = (decryptedKey.slice(0,2) == "0x") ? decryptedKey.slice(2) : decryptedKey
+
+   if(decryptedKey == "") {
+      return console.log(chalk.red.bold('Password is wrong!'))
+   }
+
+   return decryptedKey
 }
 
 // get a wallet by name
@@ -107,5 +126,6 @@ module.exports = {
   getWalletList,
   removeWallet,
   getWalletByName,
-  exportWalletJson
+  exportWalletJson,
+  unlockWallet
 }

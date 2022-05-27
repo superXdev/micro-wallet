@@ -3,6 +3,29 @@ const { Provider, Pair } = require('../../utils/database')
 const web3 = require('../../utils/web3')
 const swapAbi = require('../../abi/swapv2.json')
 const BigNumber = require('bignumber.js')
+const { APPROVE_TOKEN } = require('../../utils/constants')
+
+
+// prototype of Number object
+Number.prototype.noExponents = function() {
+   var data = String(this).split(/[eE]/)
+   if (data.length == 1) return data[0]
+
+   var z = '',
+      sign = this < 0 ? '-' : '',
+      str = data[0].replace('.', ''),
+      mag = Number(data[1]) + 1
+
+   if (mag < 0) {
+      z = sign + '0.'
+      while (mag++) z += '0'
+      return z + str.replace(/^\-/, '')
+   }
+
+   mag -= str.length
+   while (mag--) z += '0';
+   return str + z;
+}
 
 
 async function getMinOut(data) {
@@ -44,7 +67,9 @@ async function getPairBySymbol(data) {
 function calcFinalMinOut(amount, decimals, slippage) {
 	// amount = BigNumber(`${amount}e-${decimals}`).toString()
 	const div = parseInt(amount) * slippage / 100
-	return amount - parseInt(div)
+	const result = amount - parseInt(div)
+
+	return result.noExponents()
 }
 
 async function getAmountsIn(data) {
@@ -55,7 +80,8 @@ async function getAmountsIn(data) {
 }
 
 async function approveToken(data) {
-	const rawData = web3.getApproveData({
+	const rawData = web3.getRawData({
+		type: APPROVE_TOKEN,
 		rpcURL: data.rpcURL,
 		spender: data.spender,
 		owner: data.owner

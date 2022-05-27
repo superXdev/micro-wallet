@@ -148,56 +148,46 @@ function getTransferTokenData(data) {
 	).encodeABI()
 }
 
-// get data for raw transaction of swap ETH for TOKEN
-function getSwapEthForTokenData(data) {
-	const web3 = new Web3(data.rpcURL)
-	const swap = new web3.eth.Contract(swapAbi, data.contractAddress)
-
-	return swap.methods.swapExactETHForTokens(
-		data.amountOutMin,
-		data.path,
-		data.to,
-		data.deadline
-	).encodeABI()
-}
-
-// get data for raw transaction of swap TOKEN for ETH
-function getSwapTokenForEthData(data) {
-	const web3 = new Web3(data.rpcURL)
-	const swap = new web3.eth.Contract(swapAbi, data.contractAddress)
-
-	return swap.methods.swapExactTokensForETH(
-		data.amountIn,
-		data.amountOutMin,
-		data.path,
-		data.to,
-		data.deadline
-	).encodeABI()
-}
-
-// get data for raw transaction of swap TOKEN for TOKEN
-function getSwapTokenForTokenData(data) {
-	const web3 = new Web3(data.rpcURL)
-	const swap = new web3.eth.Contract(swapAbi, data.contractAddress)
-
-	return swap.methods.swapExactTokensForTokens(
-		data.amountIn,
-		data.amountOutMin,
-		data.path,
-		data.to,
-		data.deadline
-	).encodeABI()
-}
-
-// get data for approve TOKEN or spend it
-function getApproveData(data) {
+function getRawData(data) {
 	const web3 = new Web3(data.rpcURL)
 	const token = new web3.eth.Contract(erc20Abi, data.contractAddress)
+	const swap = new web3.eth.Contract(swapAbi, data.contractAddress)
+	
+	if(data.type === SWAP_ETH_FOR_TOKEN) {
+		return swap.methods.swapExactETHForTokens(
+			data.amountOutMin,
+			data.path,
+			data.to,
+			data.deadline
+		).encodeABI()
+	}
 
-	return token.methods.approve(
-		data.spender,
-		AMOUNT_ALLOWANCE
-	).encodeABI()
+	if(data.type === SWAP_TOKEN_FOR_ETH) {
+		return swap.methods.swapExactTokensForETH(
+			data.amountIn,
+			data.amountOutMin,
+			data.path,
+			data.to,
+			data.deadline
+		).encodeABI()
+	}
+
+	if(data.type === SWAP_TOKEN_FOR_TOKEN) {
+		return swap.methods.swapExactTokensForTokens(
+			data.amountIn,
+			data.amountOutMin,
+			data.path,
+			data.to,
+			data.deadline
+		).encodeABI()
+	}
+
+	if(data.type === APPROVE_TOKEN) {
+		return token.methods.approve(
+			data.spender,
+			AMOUNT_ALLOWANCE
+		).encodeABI()
+	}
 }
 
 // get data for approve TOKEN or spend it
@@ -228,7 +218,7 @@ async function signTransaction(data) {
 	let txData = {
 		nonce:    web3.utils.toHex(nonce),
 		to:       data.destination,
-		value:    web3.utils.toHex(web3.utils.toWei(data.value, 'ether')),
+		value:    web3.utils.toHex(data.value),
 		gasLimit: web3.utils.toHex(data.gasLimit),
 		gasPrice: web3.utils.toHex(data.gasPrice)
 	}
@@ -280,10 +270,7 @@ module.exports = {
 	fromWeiToGwei,
 	fromWeiToEther,
 	fromEtherToWei,
-	getSwapEthForTokenData,
-	getApproveData,
-	getSwapTokenForEthData,
-	getSwapTokenForTokenData,
 	getContractData,
-	getChainId
+	getChainId,
+	getRawData
 }

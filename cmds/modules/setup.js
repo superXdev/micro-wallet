@@ -98,7 +98,7 @@ const networkDefaultData = [
 const providerDefaultData = [
    // sushiswap testnet
    {
-      providerName: "Sushiswap Ropsten Testnet",
+      providerName: "Sushiswap Testnet",
       contractAddress: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
       networkId: 7
    }
@@ -109,24 +109,17 @@ const pairDefaultData = [
    {
       name: "Wrapped Ether",
       symbol: "ETH",
-      contractAddress: "0xc778417E063141139Fce010982780140Aa0cD5Ab",
+      contractAddress: "0xb4fbf271143f4fbf7b91a5ded31805e42b2208d6",
       decimals: 18,
       networkId: 7
    },
    {
       name: "USD Coin",
       symbol: "USDC",
-      contractAddress: "0x0D9C8723B343A8368BebE0B5E89273fF8D712e3C",
+      contractAddress: "0x88CdDc7Ce9A2a982a51b0f5a272bBa17009686E2",
       decimals: 6,
       networkId: 7
-   },
-   {
-      name: "Uniswap",
-      symbol: "UNI",
-      contractAddress: "0x71d82Eb6A5051CfF99582F4CDf2aE9cD402A4882",
-      decimals: 18,
-      networkId: 7
-   },
+   }
 ]
 
 async function runSetup() {

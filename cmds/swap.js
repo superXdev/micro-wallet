@@ -1,7 +1,7 @@
 const chalk = require('chalk')
 const { getAllowance, getBalance, formatAmount } = require('./modules/token')
 const { getNetworkById, getConnectionStatus } = require('./modules/network')
-const { isWalletExists, getWalletByName } = require('./modules/wallet')
+const { isWalletExists, getWalletByName, unlockWallet } = require('./modules/wallet')
 const { 
   getMinOut, 
   getProviderByNetwork,
@@ -16,12 +16,10 @@ const {
    getEstimateGasLimit,
    getGasPrice,
    fromEtherToWei,
-   getSwapEthForTokenData,
    signTransaction,
    sendingTransaction,
    fromWeiToGwei,
-   getSwapTokenForEthData,
-   getSwapTokenForTokenData
+   getRawData
 } = require('../utils/web3')
 const crypto = require('../utils/crypto')
 const BigNumber = require('bignumber.js')
@@ -36,44 +34,6 @@ const {
 } = require('../utils/constants')
 const Web3 = require('web3')
 
-// prototype of Number object
-Number.prototype.noExponents = function() {
-   var data = String(this).split(/[eE]/)
-   if (data.length == 1) return data[0]
-
-   var z = '',
-      sign = this < 0 ? '-' : '',
-      str = data[0].replace('.', ''),
-      mag = Number(data[1]) + 1
-
-   if (mag < 0) {
-      z = sign + '0.'
-      while (mag++) z += '0'
-      return z + str.replace(/^\-/, '')
-   }
-
-   mag -= str.length
-   while (mag--) z += '0';
-   return str + z;
-}
-
-
-async function unlockWallet(account) {
-   const answers = await inquirer.prompt({
-      type: 'password',
-      name: 'password',
-      message: 'Enter password to continue:'
-   })
-
-   let decryptedKey = crypto.decryptData(account.privateKey, answers.password)
-   decryptedKey = (decryptedKey.slice(0,2) == "0x") ? decryptedKey.slice(2) : decryptedKey
-
-   if(decryptedKey == "") {
-      return console.log(chalk.red.bold('Password is wrong!'))
-   }
-
-   return decryptedKey
-}
 
 
 exports.command = 'swap <from> <to>'
@@ -148,19 +108,15 @@ exports.handler = async function (argv) {
     : (isFromToken ? SWAP_TOKEN_FOR_ETH : SWAP_TOKEN_FOR_TOKEN)
 
   // return console.log(swapType)
-  const value = (isFromNative) ? w3.utils.toWei(argv.amount) : '0'
+  const value = (isFromNative) ? fromEtherToWei(argv.amount) : '0'
 
-  let balance = 0
-  let allowance = 0
-  let minOut = null
-  let finalOut = 0
-  let gasLimit = 0
-  let gasPrice = 0
+  // transaction input
+  let inputTransaction = {}
+
+  // decrypted private key
   let decryptedKey = null
 
-  const w3 = new Web3()
-
-
+  // tasks to checking connection & balance
   const tasks = new Listr([
       {
          title: 'Checking connection...',
@@ -178,17 +134,17 @@ exports.handler = async function (argv) {
          title: 'Checking balance & allowance',
          task: async (ctx, task) => {
             if(isFromNative) {
-               balance = await getNativeBalance(account.address, networkData.rpcURL)
+               inputTransaction.balance = await getNativeBalance(account.address, networkData.rpcURL)
             }
             
             if(isFromToken || isBetweenToken) {
-               allowance = await getAllowance({
+               inputTransaction.allowance = await getAllowance({
                   rpcURL: networkData.rpcURL,
                   contractAddress: pair[0].contractAddress,
                   owner: account.address,
                   spender: provider.contractAddress
                })
-               balance = await getBalance({
+               inputTransaction.balance = await getBalance({
                   rpcURL: networkData.rpcURL,
                   contractAddress: pair[0].contractAddress,
                   owner: account.address
@@ -201,9 +157,10 @@ exports.handler = async function (argv) {
 
    await tasks.run()
 
+   // run approve token if first time
    if(isFromToken || isBetweenToken) {
       // approve first if allowance is not enough
-      if(parseFloat(allowance) < parseFloat(argv.amount)) {
+      if(parseFloat(inputTransaction.allowance) < parseFloat(formatAmount(argv.amount, pair[0].decimals))) {
          console.log(chalk.white.bgBlue('\nNeed to approve token'))
          decryptedKey = await unlockWallet(account)
 
@@ -220,7 +177,7 @@ exports.handler = async function (argv) {
                })
 
                // get current gas price
-               gasPrice = await getGasPrice(networkData.rpcURL)
+               inputTransaction.gasPrice = await getGasPrice(networkData.rpcURL)
 
                await approveToken({
                   rpcURL: networkData.rpcURL,
@@ -229,13 +186,15 @@ exports.handler = async function (argv) {
                   owner: account.address,
                   chainId: networkData.chainId,
                   gasLimit: gasLimit2,
-                  gasPrice: gasPrice,
+                  gasPrice: inputTransaction.gasPrice,
                   privateKey: decryptedKey
                })
             }
          }]).run()
       }
    }
+
+   // run tasks for estimating gas fee & min output
    await new Listr([{
       title: 'Estimating gas fee & output amount',
       task: async (ctx, task) => {
@@ -251,9 +210,9 @@ exports.handler = async function (argv) {
          })
 
          // store to minimum output for estimate
-         minOut = minOutProp[1]
+         inputTransaction.minOut = minOutProp[1]
          // calculate minimum output with slippage
-         finalOut = calcFinalMinOut(minOutProp[1], pair[0].decimals, argv.slippage)
+         inputTransaction.finalOut = calcFinalMinOut(minOutProp[1], pair[0].decimals, argv.slippage)
 
          // for estimate gas limit
          const estParam = {
@@ -261,7 +220,7 @@ exports.handler = async function (argv) {
             contractAddress: provider.contractAddress,
             type: swapType,
             value: value,
-            amountOutMin: finalOut.noExponents(),
+            amountOutMin: inputTransaction.finalOut,
             path: path,
             to: recipient,
             from: account.address,
@@ -275,16 +234,16 @@ exports.handler = async function (argv) {
          // temp = estParam
          // return
 
-         gasLimit = await getEstimateGasLimit(estParam)
+         inputTransaction.gasLimit = await getEstimateGasLimit(estParam)
 
          // get current gas price
-         gasPrice = await getGasPrice(networkData.rpcURL)
+         inputTransaction.gasPrice = await getGasPrice(networkData.rpcURL)
       }
    }]).run()
 
    const balanceRounded = (isFromNative) 
-      ? balance
-      : BigNumber(`${balance}e-${pair[0].decimals}`).toString()
+      ? inputTransaction.balance
+      : BigNumber(`${inputTransaction.balance}e-${pair[0].decimals}`)
 
 
    if(parseFloat(argv.amount) > parseFloat(balanceRounded)) {
@@ -294,7 +253,7 @@ exports.handler = async function (argv) {
 
    // calculate total fee from gas price * gas limit
    // and convert to ether format
-   const totalFee = fromWeiToEther(gasPrice * gasLimit).substr(0, 12)
+   const totalFee = fromWeiToEther(inputTransaction.gasPrice * inputTransaction.gasLimit).substr(0, 12)
    // sum from total fee + amount
    let total = parseFloat(totalFee) + parseFloat(argv.amount)
    total = (total < 1) ? total.toFixed(10) : total.toFixed(5)
@@ -302,12 +261,13 @@ exports.handler = async function (argv) {
    // show details before proceed the transaction
    console.log(chalk.white.bold(`\n  Transaction details`))
    console.log('  ==========')
+   console.log(`  Provider  : ${chalk.cyan(provider.providerName)}`)
    console.log(`  From      : ${chalk.yellow(argv.amount)} ${argv.from}`)
-   console.log(`  To (est)  : ${chalk.yellow(BigNumber(`${minOut}e-${pair[1].decimals}`))} ${argv.to}`)
+   console.log(`  To (est)  : ${chalk.yellow(BigNumber(`${inputTransaction.minOut}e-${pair[1].decimals}`))} ${argv.to}`)
    console.log(`  Available : ${chalk.green(balanceRounded)} ${argv.from}`)
    console.log(`  Recipient : ${recipient}`)
-   console.log(`  Gas limit : ${gasLimit}`)
-   console.log(`  Gas price : ${chalk.gray(fromWeiToGwei(gasPrice))} gwei`)
+   console.log(`  Gas limit : ${inputTransaction.gasLimit}`)
+   console.log(`  Gas price : ${chalk.gray(fromWeiToGwei(inputTransaction.gasPrice))} gwei`)
    console.log(`  Total fee : ${chalk.gray(totalFee)} ${networkData.currencySymbol}`)
    console.log()
 
@@ -328,68 +288,37 @@ exports.handler = async function (argv) {
 
    console.log()
 
-   let rawData = null
-   let txSigned = null
-   let txSignedParam = null
 
-   if(isFromNative) {
-      rawData = getSwapEthForTokenData({
-         rpcURL: networkData.rpcURL,
-         contractAddress: provider.contractAddress,
-         amountOutMin: finalOut.noExponents(),
-         path: path,
-         to: recipient,
-         from: account.address,
-         deadline: deadline
-      })
+   let paramRawData = {
+      type: swapType,
+      rpcURL: networkData.rpcURL,
+      contractAddress: provider.contractAddress,
+      amountOutMin: inputTransaction.finalOut,
+      path: path,
+      to: recipient,
+      from: account.address,
+      deadline: deadline
    }
 
-   if(isFromToken) {
-      rawData = getSwapTokenForEthData({
-         rpcURL: networkData.rpcURL,
-         contractAddress: provider.contractAddress,
-         amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
-         amountOutMin: finalOut.noExponents(),
-         path: path,
-         to: recipient,
-         from: account.address,
-         deadline: deadline
-      })
-   }
+   if(isFromToken || isBetweenToken) {
+      paramRawData.amountIn = BigNumber(`${argv.amount}e${pair[0].decimals}`).toString()
+   } 
 
-   if(isBetweenToken) {
-      rawData = getSwapTokenForTokenData({
-         rpcURL: networkData.rpcURL,
-         contractAddress: provider.contractAddress,
-         amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
-         amountOutMin: finalOut.noExponents(),
-         path: path,
-         to: recipient,
-         from: account.address,
-         deadline: deadline
-      })
-   }
+   const rawData = getRawData(paramRawData)
 
-
-
-   
-   txSignedParam = {
+   // sign transaction
+   const txSigned = await signTransaction({
       rpcURL: networkData.rpcURL,
       destination: provider.contractAddress,
       from: account.address,
       value: value,
-      gasLimit: gasLimit,
-      gasPrice: gasPrice,
+      gasLimit: inputTransaction.gasLimit,
+      gasPrice: inputTransaction.gasPrice,
       chainId: networkData.chainId,
       useData: true,
       data: rawData,
       privateKey: decryptedKey
-   }
-
-   
-   
-
-   txSigned = await signTransaction(txSignedParam)
+   })
    
    // do swap transaction
    console.log('Sending transaction into blockchain')
