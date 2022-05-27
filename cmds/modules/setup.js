@@ -61,6 +61,14 @@ const networkDefaultData = [
       chainId: 25,
       isTestnet: false
    },
+   {
+      networkName: "Celo (Mainnet)",
+      rpcURL: "https://forno.celo.org",
+      currencySymbol: "CELO",
+      explorerURL: "https://explorer.celo.org",
+      chainId: 42220,
+      isTestnet: false
+   },
    // testnet network
    {
       networkName: "Polygon Testnet Mumbai",
@@ -116,6 +124,14 @@ const networkDefaultData = [
       currencySymbol: "tCRO",
       explorerURL: "https://testnet.cronoscan.com",
       chainId: 338,
+      isTestnet: true
+   },
+   {
+      networkName: "Celo (Alfajores Testnet)",
+      rpcURL: "https://alfajores-forno.celo-testnet.org",
+      currencySymbol: "CELO",
+      explorerURL: "https://alfajores-blockscout.celo-testnet.org",
+      chainId: 44787,
       isTestnet: true
    },
    {
