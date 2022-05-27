@@ -53,6 +53,14 @@ const networkDefaultData = [
       chainId: 250,
       isTestnet: false
    },
+   {
+      networkName: "Cronos",
+      rpcURL: "https://evm.cronos.org",
+      currencySymbol: "CRO",
+      explorerURL: "https://cronoscan.com",
+      chainId: 25,
+      isTestnet: false
+   },
    // testnet network
    {
       networkName: "Polygon Testnet Mumbai",
@@ -100,6 +108,14 @@ const networkDefaultData = [
       currencySymbol: "KLAY",
       explorerURL: "https://baobab.scope.klaytn.com",
       chainId: 1001,
+      isTestnet: true
+   },
+   {
+      networkName: "Cronos Testnet",
+      rpcURL: "https://evm-t3.cronos.org",
+      currencySymbol: "tCRO",
+      explorerURL: "https://testnet.cronoscan.com",
+      chainId: 338,
       isTestnet: true
    },
    {

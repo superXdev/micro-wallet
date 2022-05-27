@@ -172,10 +172,10 @@ exports.handler = async function (argv) {
    console.log(`  Receipt   : ${destination}`)
    console.log(`  Gas limit : ${gasLimit}`)
    console.log(`  Gas price : ${chalk.gray(fromWeiToGwei(gasPrice))} gwei`)
-   console.log(`  Total fee : ${chalk.gray(totalFee)} ETH`)
+   console.log(`  Total fee : ${chalk.gray(totalFee)} ${networkData.currencySymbol}`)
    // if native transfer show total of total fee + amount to send
    if(isNativeTransfer)
-      console.log(`  Total     : ${chalk.yellow(total)} ETH\n`)
+      console.log(`  Total     : ${chalk.yellow(total)} ${networkData.currencySymbol}\n`)
 
    console.log()
 
