@@ -2,7 +2,7 @@ const yargs = require('yargs/yargs')
 const inquirer = require('inquirer')
 const validator = require('validator')
 const Listr = require('listr')
-const { getWalletByName } = require('./modules/wallet')
+const { getWalletByName, getDestinationAddress, unlockWallet } = require('./modules/wallet')
 const { getTokenBySymbol, formatAmount } = require('./modules/token')
 const { getBalance, formatBalance } = require('./modules/balance')
 const { 
@@ -44,7 +44,7 @@ exports.builder = (yargs) => {
       demand: true,
       alias: 'd',
       type: 'string',
-      desc: 'Address or name of receipt'
+      desc: 'Address or identifier of recipient'
    })
    .option('wallet', {
       demand: true,
@@ -67,15 +67,15 @@ exports.builder = (yargs) => {
 exports.handler = async function (argv) {
    // get account first
    const account = await getWalletByName(argv.wallet)
-   // get destination
-   let destination = argv.destination
-
-   if(validator.isAlphanumeric(argv.destination)) {
-      destination = await getWalletByName(argv.destination)
-   }
-
    // get network data
    const networkData = await getNetworkById(argv.network)
+   // get destination
+   let destination = await getDestinationAddress(argv.destination, networkData.rpcURL)
+
+   // invalid destination
+   if(destination === null) {
+      return console.log('Destination identifier is not valid')
+   }
 
    const isNativeTransfer = networkData.currencySymbol === argv.symbol
 
@@ -129,7 +129,7 @@ exports.handler = async function (argv) {
                   rpcURL: networkData.rpcURL,
                   type: TRANSFER_TOKEN,
                   contractAddress: tokenData.contractAddress,
-                  destination: destination.address,
+                  destination: destination,
                   from: account.address,
                   amount: formatAmount(argv.amount, tokenData.decimals)
                }
@@ -138,7 +138,7 @@ exports.handler = async function (argv) {
                rawData = getTransferTokenData({
                   rpcURL: networkData.rpcURL,
                   contractAddress: tokenData.contractAddress,
-                  destination: destination.address,
+                  destination: destination,
                   amount: formatAmount(argv.amount, tokenData.decimals)
                })
 
@@ -169,7 +169,7 @@ exports.handler = async function (argv) {
    console.log('  ==========')
    console.log(`  Amount    : ${chalk.magenta(argv.amount)} ${argv.symbol}`)
    console.log(`  Sender    : ${account.address}`)
-   console.log(`  Receipt   : ${destination.address}`)
+   console.log(`  Receipt   : ${destination}`)
    console.log(`  Gas limit : ${gasLimit}`)
    console.log(`  Gas price : ${chalk.gray(fromWeiToGwei(gasPrice))} gwei`)
    console.log(`  Total fee : ${chalk.gray(totalFee)} ETH`)
@@ -179,18 +179,8 @@ exports.handler = async function (argv) {
 
    console.log()
 
-   const answers = await inquirer.prompt({
-      type: 'password',
-      name: 'password',
-      message: 'Enter password to continue:'
-   })
-
-   let decryptedKey = crypto.decryptData(account.privateKey, answers.password)
-   decryptedKey = (decryptedKey.slice(0,2) == "0x") ? decryptedKey.slice(2) : decryptedKey
-
-   if(decryptedKey == "") {
-      return console.log(chalk.red.bold('Password is wrong!'))
-   }
+   // unlock wallet to get decrypted private key
+   const decryptedKey = await unlockWallet(account)
 
    console.log()
 
@@ -199,7 +189,7 @@ exports.handler = async function (argv) {
       // sign
       txSigned = await signTransaction({
          rpcURL: networkData.rpcURL,
-         destination: destination.address,
+         destination: destination,
          from: account.address,
          value: argv.amount,
          gasLimit: gasLimit,

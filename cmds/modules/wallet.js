@@ -1,8 +1,10 @@
-const { Wallet } = require('../../utils/database')
+const { Wallet, Book } = require('../../utils/database')
 const web3 = require('../../utils/web3')
 const crypto = require('../../utils/crypto')
 const inquirer = require('inquirer')
 const fs = require('fs')
+const validator = require('validator')
+const { getAddressOfEns } = require('./ens')
 
 
 // get list of all wallet
@@ -28,6 +30,42 @@ async function unlockWallet(account) {
    }
 
    return decryptedKey
+}
+
+// get address from various type of destination
+async function getDestinationAddress(identifier, rpcURL) {
+   // hex address
+   if(identifier.match(/^0x[a-fA-F0-9]{40}$/g)) {
+      return identifier
+   }
+
+   // if alpha numeric char
+   if(validator.isAlphanumeric(identifier)) {
+      // get from book address
+      const bookAddress = await Book.findOne({ where: { name: identifier } })
+
+      if(bookAddress) {
+         return bookAddress.address
+      }
+
+      // from wallet account
+      const wallet = await Wallet.findOne({ where: { walletName: identifier } })
+
+      if(wallet) {
+         return wallet.address
+      }
+
+   }
+
+   // if url char
+   if(validator.isURL(identifier)) {
+      const address = await getAddressOfEns(rpcURL, identifier)
+
+      return address
+   }
+
+   // not valid
+   return null
 }
 
 // get a wallet by name
@@ -127,5 +165,6 @@ module.exports = {
   removeWallet,
   getWalletByName,
   exportWalletJson,
-  unlockWallet
+  unlockWallet,
+  getDestinationAddress
 }

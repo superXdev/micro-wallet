@@ -1,7 +1,7 @@
 const chalk = require('chalk')
 const { getAllowance, getBalance, formatAmount } = require('./modules/token')
 const { getNetworkById, getConnectionStatus } = require('./modules/network')
-const { isWalletExists, getWalletByName, unlockWallet } = require('./modules/wallet')
+const { getDestinationAddress, getWalletByName, unlockWallet } = require('./modules/wallet')
 const { 
   getMinOut, 
   getProviderByNetwork,
@@ -95,7 +95,7 @@ exports.handler = async function (argv) {
   const path = [pair[0].contractAddress, pair[1].contractAddress]
 
   // setting
-  const recipient = (argv.receipt) ? argv.receipt : account.address
+  const recipient = (argv.receipt) ? await getDestinationAddress(argv.receipt) : account.address
   const deadline = (parseInt(Date.now() / 1000) + argv.deadline * 60).toString()
 
   // swap type
