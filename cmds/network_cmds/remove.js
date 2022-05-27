@@ -1,5 +1,5 @@
 const chalk = require('chalk')
-const { removeNetwork } = require('../modules/network')
+const { removeNetwork, getNetworkById, isNetworkExistsById } = require('../modules/network')
 const inquirer = require('inquirer')
 
 
@@ -15,6 +15,15 @@ exports.builder = {
 }
 
 exports.handler = async function (argv) {
+   const isExists = await isNetworkExistsById(argv.network)
+
+   if(!isExists) {
+      return console.log('Network not found')
+   }
+
+   const network = await getNetworkById(argv.network)
+
+   console.log(`Remove network: ${chalk.yellow(network.networkName)}`)
    const answers = await inquirer.prompt({
       type: 'confirm',
       name: 'toConfirmed',
@@ -23,7 +32,7 @@ exports.handler = async function (argv) {
    })
 
    if(!answers.toConfirmed) {
-      return
+      return console.log('Canceled by user')
    }
 
    const result = await removeNetwork(argv.network)
