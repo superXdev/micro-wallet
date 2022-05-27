@@ -5,66 +5,21 @@ const Listr = require('listr')
 
 
 
-
-async function getMainnetTable(argv) {
+async function getNetworkTable(status, isTestnet) {
    const head = [chalk.white.bold('ID'), chalk.white.bold('Network name'), chalk.white.bold('Currency')]
    const colWidths = [5, 30, 13]
 
-   if(argv.status) {
+   if(status) {
       head.push(chalk.white.bold('Status'))
       colWidths.push(8)
    }
 
-   const mainnetTable = new Table({
+   const table = new Table({
       head: head,
       colWidths: colWidths
    });
 
-   const mainnet = await getNetworkList()
-
-   const promises = mainnet.map(async row =>  {
-      const date = new Date(row.createdAt)
-      let data = []
-
-      data.push(
-         row.id,
-         row.networkName,
-         row.currencySymbol
-      )
-
-      if(argv.status) {
-         const status = await getConnectionStatus(row.rpcURL)
-
-         if(typeof status === 'number') {
-            data.push(chalk.green.bold('OK'))
-         } else {
-            data.push(chalk.red.bold('BAD'))
-         }
-      }
-
-      mainnetTable.push(data)
-   })
-
-   await Promise.all(promises)
-
-   return mainnetTable
-}
-
-async function getTestnetTable(argv) {
-   const head = [chalk.white.bold('ID'), chalk.white.bold('Network name'), chalk.white.bold('Currency')]
-   const colWidths = [5, 30, 13]
-
-   if(argv.status) {
-      head.push(chalk.white.bold('Status'))
-      colWidths.push(8)
-   }
-
-   const testnetTable = new Table({
-      head: head,
-      colWidths: colWidths
-   });
-
-   const testnet = await getNetworkList(true)
+   const testnet = await getNetworkList(isTestnet)
 
    const promises2 = testnet.map(async row =>  {
       const date = new Date(row.createdAt)
@@ -76,7 +31,7 @@ async function getTestnetTable(argv) {
          row.currencySymbol
       )
 
-      if(argv.status) {
+      if(status) {
          const status = await getConnectionStatus(row.rpcURL)
 
          if(typeof status === 'number') {
@@ -88,12 +43,12 @@ async function getTestnetTable(argv) {
          
       }
 
-      testnetTable.push(data)
+      table.push(data)
    })
 
    await Promise.all(promises2)
 
-   return testnetTable
+   return table
 }
 
 
@@ -120,16 +75,16 @@ exports.handler = async function (argv) {
       task: async () => {
          if(argv.type !== undefined) {
             if(argv.type === 'mainnet') {
-               table = await getMainnetTable(argv)
+               table = await getNetworkTable(argv.status, false)
             } else if(argv.type === 'testnet') {
-               table = await getTestnetTable(argv)
+               table = await getNetworkTable(argv.status, true)
             } else {
                console.log(chalk.red.bold(`Invalid type: ${arg.type}`))
             }
 
          } else {
-            tables.mainnet = await getMainnetTable(argv)
-            tables.testnet = await getTestnetTable(argv)
+            tables.mainnet = await getNetworkTable(argv.status, false)
+            tables.testnet = await getNetworkTable(argv.status, true)
 
             
          }

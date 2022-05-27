@@ -38,7 +38,7 @@ exports.handler = async function (argv) {
    // get network data
    const network = await getNetworkById(argv.network)
    // web3js instances
-   const web3 = new Web3(network.rpc)
+   const web3 = new Web3(network.rpcURL)
 
    // time-ago initialize
    TimeAgo.addDefaultLocale(en)
@@ -83,7 +83,7 @@ exports.handler = async function (argv) {
 
          
          if(isFailed) {
-            reason = await getRevertReason(argv.hash, network.rpc)
+            reason = await getRevertReason(argv.hash, network.rpcURL)
          }
       }
    }]).run()
