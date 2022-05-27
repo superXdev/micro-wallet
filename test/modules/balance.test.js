@@ -21,7 +21,7 @@ describe("Balance modules", () => {
 		const networkData = await network.getNetworkById(7)
 		const balance = await getBalance({
             address: account.address,
-            rpc: networkData.rpc,
+            rpc: networkData.rpcURL,
             isToken: false
          })
 
@@ -42,7 +42,7 @@ describe("Balance modules", () => {
 		const networkData = await network.getNetworkById(7)
 		const balance = await getBalance({
 			address: account.address,
-			rpc: networkData.rpc,
+			rpc: networkData.rpcURL,
 			isToken: true,
 			target: 'USDC',
 			network: 7
@@ -56,7 +56,7 @@ describe("Balance modules", () => {
 		const networkData = await network.getNetworkById(7)
 		const balance = await getBalance({
 			address: account.address,
-			rpc: networkData.rpc,
+			rpc: networkData.rpcURL,
 			isToken: true,
 			target: 'USDT',
 			network: 7

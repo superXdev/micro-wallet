@@ -49,7 +49,7 @@ exports.handler = async function (argv) {
       // get balance
       const balance = await getBalance({
          address: account.address,
-         rpc: networkData.rpc,
+         rpc: networkData.rpcURL,
          isToken: isToken,
          target: argv.target,
          network: argv.network
@@ -64,7 +64,7 @@ exports.handler = async function (argv) {
 
       const balanceShow = (isToken) ? formatBalance(balance.balance, balance.decimals) : balance
 
-      console.log(`Network      : ${(networkData.isTestnet) ? chalk.cyan(networkData.name) : chalk.green(networkData.name)}`)
+      console.log(`Network      : ${(networkData.isTestnet) ? chalk.cyan(networkData.networkName) : chalk.green(networkData.name)}`)
       console.log(`Your balance : ${chalk.yellow(balanceShow)} ${currency}`)
    } else {
       const networks = await getNetworkList(argv.testnet)

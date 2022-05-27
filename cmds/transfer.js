@@ -101,7 +101,7 @@ exports.handler = async function (argv) {
          task: async (ctx, task) => {
             // checking connection if ok
             // process will be continue
-            const status = await getConnectionStatus(networkData.rpc)
+            const status = await getConnectionStatus(networkData.rpcURL)
 
             if(status === null) {
                 throw new Error('Connection failed')
@@ -115,7 +115,7 @@ exports.handler = async function (argv) {
             // for native transfer
             if(isNativeTransfer) {
                data = {
-                  rpcURL: networkData.rpc,
+                  rpcURL: networkData.rpcURL,
                   type: TRANSFER_COIN
                }
             } else {
@@ -126,7 +126,7 @@ exports.handler = async function (argv) {
                }
 
                data = {
-                  rpcURL: networkData.rpc,
+                  rpcURL: networkData.rpcURL,
                   type: TRANSFER_TOKEN,
                   contractAddress: tokenData.contractAddress,
                   destination: destination.address,
@@ -136,7 +136,7 @@ exports.handler = async function (argv) {
 
                // encode transfer method
                rawData = getTransferTokenData({
-                  rpcURL: networkData.rpc,
+                  rpcURL: networkData.rpcURL,
                   contractAddress: tokenData.contractAddress,
                   destination: destination.address,
                   amount: formatAmount(argv.amount, tokenData.decimals)
@@ -149,7 +149,7 @@ exports.handler = async function (argv) {
             // get gasLimit
             gasLimit = await getEstimateGasLimit(data)
             // get gas fee
-            gasPrice = await getGasPrice(networkData.rpc)
+            gasPrice = await getGasPrice(networkData.rpcURL)
          }
       }
    ])
@@ -198,7 +198,7 @@ exports.handler = async function (argv) {
    if(isNativeTransfer) {
       // sign
       txSigned = await signTransaction({
-         rpcURL: networkData.rpc,
+         rpcURL: networkData.rpcURL,
          destination: destination.address,
          from: account.address,
          value: argv.amount,
@@ -209,7 +209,7 @@ exports.handler = async function (argv) {
       })
    } else {
       txSigned = await signTransaction({
-         rpcURL: networkData.rpc,
+         rpcURL: networkData.rpcURL,
          destination: contractAddress,
          from: account.address,
          value: '0',
@@ -224,7 +224,7 @@ exports.handler = async function (argv) {
    
    // console.log(getTxHash(txSigned.data))
    console.log('Sending transaction into blockchain')
-   sendingTransaction(txSigned, networkData.rpc)
+   sendingTransaction(txSigned, networkData.rpcURL)
       .on('receipt', function(data) {
          console.log(`Hash     : ${chalk.cyan(data.transactionHash)}`)
          console.log(`Explorer : ${networkData.explorerURL}/tx/${data.transactionHash}`)

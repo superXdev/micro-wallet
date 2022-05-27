@@ -137,7 +137,7 @@ exports.handler = async function (argv) {
          task: async (ctx, task) => {
             // checking connection if ok
             // process will be continue
-            const status = await getConnectionStatus(networkData.rpc)
+            const status = await getConnectionStatus(networkData.rpcURL)
 
             if(status === null) {
                 throw new Error('Connection failed')
@@ -149,14 +149,14 @@ exports.handler = async function (argv) {
          task: async () => {
 
             gasLimit = await getEstimateGasLimit({
-               rpcURL: networkData.rpc,
+               rpcURL: networkData.rpcURL,
                from: account.address,
                bytecode: bytecode.toString(),
                type: DEPLOY_ERC20,
                arguments: [tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals, totalSupply.noExponents()]
             })
 
-            gasPrice = await getGasPrice(networkData.rpc)
+            gasPrice = await getGasPrice(networkData.rpcURL)
          }
       }
    ])
@@ -178,13 +178,13 @@ exports.handler = async function (argv) {
    const decryptedKey = await unlockWallet(account)
    
    const rawData = getContractData({
-      rpcURL: networkData.rpc,
+      rpcURL: networkData.rpcURL,
       bytecode: bytecode.toString(),
       arguments: [tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals, totalSupply.noExponents()]
    })
 
    const txSigned = await signTransaction(txSignedParam = {
-      rpcURL: networkData.rpc,
+      rpcURL: networkData.rpcURL,
       from: account.address,
       value: '0',
       gasLimit: gasLimit,
@@ -197,7 +197,7 @@ exports.handler = async function (argv) {
 
    console.log()
    console.log('Sending transaction into blockchain')
-   sendingTransaction(txSigned, networkData.rpc)
+   sendingTransaction(txSigned, networkData.rpcURL)
       .on('receipt', async function(data) {
          console.log(`Contract : ${chalk.yellow(data.contractAddress)}`)
          console.log(`Hash     : ${chalk.cyan(data.transactionHash)}`)

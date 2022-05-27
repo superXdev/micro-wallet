@@ -1,5 +1,5 @@
 const chalk = require('chalk')
-const { getAllowance, getBalance } = require('./modules/token')
+const { getAllowance, getBalance, formatAmount } = require('./modules/token')
 const { getNetworkById, getConnectionStatus } = require('./modules/network')
 const { isWalletExists, getWalletByName } = require('./modules/wallet')
 const { 
@@ -167,7 +167,7 @@ exports.handler = async function (argv) {
          task: async (ctx, task) => {
             // checking connection if ok
             // process will be continue
-            const status = await getConnectionStatus(networkData.rpc)
+            const status = await getConnectionStatus(networkData.rpcURL)
 
             if(status === null) {
                 throw new Error('Connection failed')
@@ -178,18 +178,18 @@ exports.handler = async function (argv) {
          title: 'Checking balance & allowance',
          task: async (ctx, task) => {
             if(isFromNative) {
-               balance = await getNativeBalance(account.address, networkData.rpc)
+               balance = await getNativeBalance(account.address, networkData.rpcURL)
             }
             
             if(isFromToken || isBetweenToken) {
                allowance = await getAllowance({
-                  rpcURL: networkData.rpc,
+                  rpcURL: networkData.rpcURL,
                   contractAddress: pair[0].contractAddress,
                   owner: account.address,
                   spender: provider.contractAddress
                })
                balance = await getBalance({
-                  rpcURL: networkData.rpc,
+                  rpcURL: networkData.rpcURL,
                   contractAddress: pair[0].contractAddress,
                   owner: account.address
                })
@@ -211,7 +211,7 @@ exports.handler = async function (argv) {
             title: 'Approving token for the first time.',
             task: async () => {
                const gasLimit2 = await getEstimateGasLimit({
-                  rpcURL: networkData.rpc,
+                  rpcURL: networkData.rpcURL,
                   contractAddress: pair[0].contractAddress,
                   type: APPROVE_TOKEN,
                   spender: provider.contractAddress,
@@ -220,10 +220,10 @@ exports.handler = async function (argv) {
                })
 
                // get current gas price
-               gasPrice = await getGasPrice(networkData.rpc)
+               gasPrice = await getGasPrice(networkData.rpcURL)
 
                await approveToken({
-                  rpcURL: networkData.rpc,
+                  rpcURL: networkData.rpcURL,
                   contractAddress: pair[0].contractAddress,
                   spender: provider.contractAddress,
                   owner: account.address,
@@ -236,16 +236,15 @@ exports.handler = async function (argv) {
          }]).run()
       }
    }
-
    await new Listr([{
       title: 'Estimating gas fee & output amount',
       task: async (ctx, task) => {
          const inAmount = (isFromNative)
             ? fromEtherToWei(argv.amount)
-            : BigNumber(`${argv.amount}e${pair[0].decimals}`).toString()
+            : formatAmount(argv.amount, pair[0].decimals)
 
          const minOutProp = await getMinOut({
-            rpcURL: networkData.rpc,
+            rpcURL: networkData.rpcURL,
             contractAddress: provider.contractAddress,
             amount: inAmount,
             path: path
@@ -258,7 +257,7 @@ exports.handler = async function (argv) {
 
          // for estimate gas limit
          const estParam = {
-            rpcURL: networkData.rpc,
+            rpcURL: networkData.rpcURL,
             contractAddress: provider.contractAddress,
             type: swapType,
             value: value,
@@ -273,10 +272,13 @@ exports.handler = async function (argv) {
             estParam.amountIn = inAmount
          }
 
+         // temp = estParam
+         // return
+
          gasLimit = await getEstimateGasLimit(estParam)
 
          // get current gas price
-         gasPrice = await getGasPrice(networkData.rpc)
+         gasPrice = await getGasPrice(networkData.rpcURL)
       }
    }]).run()
 
@@ -332,7 +334,7 @@ exports.handler = async function (argv) {
 
    if(isFromNative) {
       rawData = getSwapEthForTokenData({
-         rpcURL: networkData.rpc,
+         rpcURL: networkData.rpcURL,
          contractAddress: provider.contractAddress,
          amountOutMin: finalOut.noExponents(),
          path: path,
@@ -344,7 +346,7 @@ exports.handler = async function (argv) {
 
    if(isFromToken) {
       rawData = getSwapTokenForEthData({
-         rpcURL: networkData.rpc,
+         rpcURL: networkData.rpcURL,
          contractAddress: provider.contractAddress,
          amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
          amountOutMin: finalOut.noExponents(),
@@ -357,7 +359,7 @@ exports.handler = async function (argv) {
 
    if(isBetweenToken) {
       rawData = getSwapTokenForTokenData({
-         rpcURL: networkData.rpc,
+         rpcURL: networkData.rpcURL,
          contractAddress: provider.contractAddress,
          amountIn: BigNumber(`${argv.amount}e${pair[0].decimals}`).toString(),
          amountOutMin: finalOut.noExponents(),
@@ -372,7 +374,7 @@ exports.handler = async function (argv) {
 
    
    txSignedParam = {
-      rpcURL: networkData.rpc,
+      rpcURL: networkData.rpcURL,
       destination: provider.contractAddress,
       from: account.address,
       value: value,
@@ -391,7 +393,7 @@ exports.handler = async function (argv) {
    
    // do swap transaction
    console.log('Sending transaction into blockchain')
-   sendingTransaction(txSigned, networkData.rpc)
+   sendingTransaction(txSigned, networkData.rpcURL)
       .on('receipt', function(data) {
          console.log(`Hash     : ${chalk.cyan(data.transactionHash)}`)
          console.log(`Explorer : ${networkData.explorerURL}/tx/${data.transactionHash}`)

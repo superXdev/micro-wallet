@@ -24,7 +24,7 @@ async function getTokenTable(argv) {
 
    const promises = tokens.map(async row =>  {
       // get balance
-      const balance = await web3.getTokenBalance(account.address, row.contractAddress, networkData.rpc)
+      const balance = await web3.getTokenBalance(account.address, row.contractAddress, networkData.rpcURL)
 
       tokenTable.push([
          row.name,
