@@ -32,7 +32,7 @@ exports.handler = async function (argv) {
       {
          title: 'Checking connection...',
          task: async (ctx, task) => {
-            const status = await getConnectionStatus(network.rpc)
+            const status = await getConnectionStatus(network.rpcURL)
 
             if(status === null) {
                 throw new Error('Connection failed')
@@ -42,7 +42,7 @@ exports.handler = async function (argv) {
       {
          title: 'Fetching token information',
          task: async (ctx, task) => {
-            const result = await web3.getTokenInfo(argv.address, network.rpc)
+            const result = await web3.getTokenInfo(argv.address, network.rpcURL)
             tokenInfo = result
          }
       }
