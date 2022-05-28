@@ -163,6 +163,14 @@ exports.handler = async function (argv) {
 
    await tasks.run()
 
+   const balanceRounded = (isFromNative) 
+      ? inputTransaction.balance
+      : BigNumber(`${inputTransaction.balance}e-${pair[0].decimals}`)
+
+   if(parseFloat(balanceRounded) < parseFloat(argv.amount)) {
+      return console.log('Amount exceeds balance')
+   }
+
    // run approve token if first time
    if(isFromToken || isBetweenToken) {
       // approve first if allowance is not enough
@@ -246,10 +254,6 @@ exports.handler = async function (argv) {
          inputTransaction.gasPrice = await getGasPrice(networkData.rpcURL)
       }
    }]).run()
-
-   const balanceRounded = (isFromNative) 
-      ? inputTransaction.balance
-      : BigNumber(`${inputTransaction.balance}e-${pair[0].decimals}`)
 
 
    if(parseFloat(argv.amount) > parseFloat(balanceRounded)) {
