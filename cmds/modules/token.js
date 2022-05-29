@@ -36,6 +36,19 @@ async function getTokenList(networkId) {
 }
 
 
+async function isTokenExists(address, networkId) {
+	const result = await Token.findOne({ 
+		where: { contractAddress: address, networkId: networkId } 
+	})
+
+	if(result === null) {
+		return false
+	}
+
+	return true
+}
+
+
 async function importToken(data) {
 	const result = await Token.create({
 		name: data.name,
@@ -81,6 +94,15 @@ function formatAmount(amount, decimals) {
 	return parseFloat(big).noExponents()
 }
 
+function formatMoney(amount) {
+	const newFormat = new Intl.NumberFormat(
+      'en-US', 
+      { maximumSignificantDigits: 3 }
+   ).format(amount)
+
+   return newFormat
+}
+
 module.exports = {
 	importToken,
 	getTokenList,
@@ -88,5 +110,7 @@ module.exports = {
 	removeToken,
 	formatAmount,
 	getAllowance,
-	getBalance
+	getBalance,
+	formatMoney,
+	isTokenExists
 }

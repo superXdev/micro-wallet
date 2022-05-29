@@ -1,5 +1,5 @@
 const chalk = require('chalk')
-const { importToken } = require('../modules/token')
+const { importToken, formatMoney, isTokenExists } = require('../modules/token')
 const { getConnectionStatus, getNetworkById } = require('../modules/network')
 const web3 = require('../../utils/web3')
 const inquirer = require('inquirer')
@@ -24,9 +24,22 @@ exports.builder = {
 }
 
 exports.handler = async function (argv) {
+   // check if token is already exists or not
+   const tokenExists = await isTokenExists(argv.address, argv.network)
+
+   if(tokenExists) {
+      return console.log('Token already imported')
+   }
+
+   // get network data
    const network = await getNetworkById(argv.network)
 
+   if(network === null) {
+      return console.log('Network ID are not valid')
+   }
+
    let tokenInfo = null
+   let balance = 0
 
    const tasks = new Listr([
       {
@@ -42,19 +55,15 @@ exports.handler = async function (argv) {
       {
          title: 'Fetching token information',
          task: async (ctx, task) => {
-            const result = await web3.getTokenInfo(argv.address, network.rpcURL)
-            tokenInfo = result
+            tokenInfo = await web3.getTokenInfo(argv.address, network.rpcURL)
          }
       }
    ])
 
    await tasks.run()
 
-   // supply formatted
-   const totalSupply = new Intl.NumberFormat(
-      'en-US', 
-      { maximumSignificantDigits: 3 }
-   ).format(tokenInfo.totalSupply)
+   // currency format
+   const totalSupply = formatMoney(tokenInfo.totalSupply)
    
    console.log(chalk.white.bold(`\n  Token information`))
    console.log('  ==========')
