@@ -3,7 +3,7 @@ const fs = require('fs')
 const Listr = require('listr')
 const { rootPath } = require('../../utils/path')
 const { deployContract } = require('../modules/sc')
-const { importToken } = require('../modules/token')
+const { importToken, formatAmount } = require('../modules/token')
 const { getNetworkById, getConnectionStatus } = require('../modules/network')
 const { isWalletExists, getWalletByName } = require('../modules/wallet')
 const { DEPLOY_ERC20 } = require('../../utils/constants')
@@ -125,7 +125,7 @@ exports.handler = async function (argv) {
 
    const tokenInfo = await inquirer.prompt(questions)
 
-   const totalSupply = tokenInfo.totalSupply * 10**tokenInfo.decimals
+   const totalSupply = formatAmount(tokenInfo.totalSupply, tokenInfo.decimals)
 
    const bytecode = fs.readFileSync(contractPath)
 
@@ -153,7 +153,7 @@ exports.handler = async function (argv) {
                from: account.address,
                bytecode: bytecode.toString(),
                type: DEPLOY_ERC20,
-               arguments: [tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals, totalSupply.noExponents()]
+               arguments: [tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals, totalSupply]
             })
 
             gasPrice = await getGasPrice(networkData.rpcURL)
@@ -180,7 +180,7 @@ exports.handler = async function (argv) {
    const rawData = getContractData({
       rpcURL: networkData.rpcURL,
       bytecode: bytecode.toString(),
-      arguments: [tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals, totalSupply.noExponents()]
+      arguments: [tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals, totalSupply]
    })
 
    const txSigned = await signTransaction(txSignedParam = {

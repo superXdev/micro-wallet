@@ -4,7 +4,36 @@ const { getBalance } = require('./modules/balance')
 const { formatAmountNormal, formatMoney } = require('./modules/token')
 const { getNetworkList, getNetworkById } = require('./modules/network')
 const chalk = require('chalk')
+const Table = require('cli-table')
+const Listr = require('listr')
 
+
+async function getBalanceTable(argv, account) {
+   const table = new Table({
+      head: [chalk.white.bold('Network'), chalk.white.bold('Balance')],
+      colWidths: [36, 20]
+   });
+
+   const networks = await getNetworkList(argv.testnet)
+
+   const promises = networks.map(async data => {
+      // get balance
+      const balance = await getBalance({
+         address: account.address,
+         rpc: data.rpcURL,
+         isToken: false,
+         target: argv.target
+      })
+
+      if(!balance.error) {
+         table.push([data.networkName, `${chalk.yellow(formatMoney(balance))} ${data.currencySymbol}`])
+      }
+   })
+
+   await Promise.all(promises)
+
+   return table
+}
 
 
 
@@ -74,27 +103,19 @@ exports.handler = async function (argv) {
       console.log(`Network      : ${(networkData.isTestnet) ? chalk.cyan(networkData.networkName) : chalk.green(networkData.name)}`)
       console.log(`Your balance : ${chalk.yellow(balanceShow)} ${currency}`)
    } else {
-      const networks = await getNetworkList(argv.testnet)
+      // show all native balance
+      let balances = null
+      await new Listr([{
+         title: 'Loading all balances...',
+         task: async () => {
+            balances = await getBalanceTable(argv, account)
+         }
+      }]).run()
 
       console.log(
-         `Network : ${(argv.testnet) ? chalk.cyan('Testnet') : chalk.green('Mainnet')}\n`
+         `\nNetwork : ${(argv.testnet) ? chalk.cyan('Testnet') : chalk.green('Mainnet')}`
       )
 
-      for(let i = 0; i < networks.length; i++) {
-         // get balance
-         const balance = await getBalance({
-            address: account.address,
-            rpc: networks[i].rpcURL,
-            isToken: false,
-            target: argv.target
-         })
-
-         if(balance.error) {
-            console.log(`Error : ${chalk.red.bold(balance.message)}`)
-            continue
-         }
-
-         console.log(`Balance : ${chalk.yellow(balance)} ${networks[i].currencySymbol}`)
-      }
+      console.log(balances.toString())
    }
 }
