@@ -1,13 +1,14 @@
 const yargs = require('yargs/yargs')
 const { getWalletByName } = require('./modules/wallet')
-const { getBalance, formatBalance } = require('./modules/balance')
+const { getBalance } = require('./modules/balance')
+const { formatAmountNormal, formatMoney } = require('./modules/token')
 const { getNetworkList, getNetworkById } = require('./modules/network')
 const chalk = require('chalk')
 
 
 
 
-exports.command = 'balance <target>'
+exports.command = 'balance [target]'
 exports.desc = 'Show balance of coin or token'
 exports.builder = (yargs) => {
    yargs.positional('target', {
@@ -59,10 +60,16 @@ exports.handler = async function (argv) {
          return console.log(chalk.red.bold('Token symbol is not found'))
       }
 
-      const currency = (argv.target == undefined || argv.target == networkData.currencySymbol) 
-         ? networkData.currencySymbol : argv.target
 
-      const balanceShow = (isToken) ? formatBalance(balance.balance, balance.decimals) : balance
+      const currency = (
+         argv.target == undefined 
+         || argv.target == networkData.currencySymbol
+      ) ? networkData.currencySymbol : argv.target
+
+      // format to readable number
+      const balanceShow = (isToken) 
+         ? formatMoney(formatAmountNormal(balance.balance, balance.decimals)) 
+         : formatMoney(balance)
 
       console.log(`Network      : ${(networkData.isTestnet) ? chalk.cyan(networkData.networkName) : chalk.green(networkData.name)}`)
       console.log(`Your balance : ${chalk.yellow(balanceShow)} ${currency}`)

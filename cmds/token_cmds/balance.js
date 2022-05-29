@@ -1,7 +1,11 @@
 const chalk = require('chalk')
-const { getTokenList, removeToken } = require('../modules/token')
+const { 
+   getTokenList, 
+   removeToken, 
+   formatAmountNormal,
+   formatMoney
+} = require('../modules/token')
 const { getWalletByName } = require('../modules/wallet')
-const { formatBalance } = require('../modules/balance')
 const { getNetworkById } = require('../modules/network')
 const web3 = require('../../utils/web3')
 const inquirer = require('inquirer')
@@ -28,7 +32,7 @@ async function getTokenTable(argv) {
 
       tokenTable.push([
          row.name,
-         `${chalk.yellow(formatBalance(balance, row.decimals))} ${row.symbol}`
+         `${chalk.yellow(formatMoney(formatAmountNormal(balance, row.decimals)))} ${row.symbol}`
       ])
    })
 

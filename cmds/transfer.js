@@ -3,8 +3,7 @@ const inquirer = require('inquirer')
 const validator = require('validator')
 const Listr = require('listr')
 const { getWalletByName, getDestinationAddress, unlockWallet } = require('./modules/wallet')
-const { getToken, formatAmount } = require('./modules/token')
-const { getBalance, formatBalance } = require('./modules/balance')
+const { getToken, formatAmount, formatMoney } = require('./modules/token')
 const { 
    getNetworkList, 
    getNetworkById, 
@@ -167,7 +166,7 @@ exports.handler = async function (argv) {
    // show details before proceed the transaction
    console.log(chalk.white.bold(`\n  Transaction details`))
    console.log('  ==========')
-   console.log(`  Amount    : ${chalk.magenta(argv.amount)} ${argv.symbol}`)
+   console.log(`  Amount    : ${chalk.magenta(formatMoney(argv.amount))} ${argv.symbol}`)
    console.log(`  Sender    : ${account.address}`)
    console.log(`  Receipt   : ${destination}`)
    console.log(`  Gas limit : ${gasLimit}`)

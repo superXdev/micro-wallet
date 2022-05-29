@@ -88,6 +88,12 @@ function formatAmount(amount, decimals) {
 	return parseFloat(big).noExponents()
 }
 
+function formatAmountNormal(amount, decimals) {
+	const big = new BigNumber(amount.toString() + "e-" + decimals).toString()
+
+	return parseFloat(big).noExponents()
+}
+
 function formatMoney(amount) {
 	const newFormat = new Intl.NumberFormat(
       'en-US', 
@@ -103,6 +109,7 @@ module.exports = {
 	getToken,
 	removeToken,
 	formatAmount,
+	formatAmountNormal,
 	getAllowance,
 	getBalance,
 	formatMoney,
