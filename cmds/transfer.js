@@ -3,7 +3,7 @@ const inquirer = require('inquirer')
 const validator = require('validator')
 const Listr = require('listr')
 const { getWalletByName, getDestinationAddress, unlockWallet } = require('./modules/wallet')
-const { getTokenBySymbol, formatAmount } = require('./modules/token')
+const { getToken, formatAmount } = require('./modules/token')
 const { getBalance, formatBalance } = require('./modules/balance')
 const { 
    getNetworkList, 
@@ -83,7 +83,7 @@ exports.handler = async function (argv) {
    let tokenData = null
 
    if(!isNativeTransfer) {
-      tokenData = await getTokenBySymbol(argv.symbol)
+      tokenData = await getToken(argv.symbol, networkData.id)
 
       if(tokenData === null) {
          return console.log(chalk.yellow('Token or coin symbol is not found\nIf token, try to import it first'))

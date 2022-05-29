@@ -22,13 +22,13 @@ describe("Token modules", () => {
 		expect(result).to.be.equal(1)
 	}).timeout(5000)
 
-	it("getTokenBySymbol: should return token data", async () => {
-		const result = await token.getTokenBySymbol('USDC')
+	it("getToken: should return token data", async () => {
+		const result = await token.getToken('USDC', 7)
 		expect(result).to.deep.include({ id: 1 })
 	})
 
-	it("getTokenBySymbol: should return null", async () => {
-		const result = await token.getTokenBySymbol('BNB')
+	it("getToken: should return null", async () => {
+		const result = await token.getToken('BNB', 1)
 		expect(result).to.be.a('null')
 	})
 

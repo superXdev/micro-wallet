@@ -61,18 +61,12 @@ async function importToken(data) {
 	return result.id
 }
 
-async function getTokenBySymbol(symbol) {
-	return await Token.findOne({ where: { symbol } })
+async function getToken(symbol, networkId) {
+	return await Token.findOne({ where: { symbol, networkId } })
 }
 
 async function removeToken(id) {
-	const isExists = await Token.findOne({ where: { id: id } })
-
-   if(isExists) {
-      return await Token.destroy({ where: { id: id } })
-   }
-
-   return 0
+	return await Token.destroy({ where: { id: id } })
 }
 
 async function getAllowance(data) {
@@ -106,7 +100,7 @@ function formatMoney(amount) {
 module.exports = {
 	importToken,
 	getTokenList,
-	getTokenBySymbol,
+	getToken,
 	removeToken,
 	formatAmount,
 	getAllowance,

@@ -1,5 +1,5 @@
 const chalk = require('chalk')
-const { getTokenBySymbol, removeToken } = require('../modules/token')
+const { getToken, removeToken } = require('../modules/token')
 const inquirer = require('inquirer')
 const { Network, Token } = require('../../utils/database')
 
@@ -25,20 +25,20 @@ exports.handler = async function (argv) {
   const isNetworkExists = await Network.findOne({ where: { id: argv.network } })
 
   if(!isNetworkExists) {
-    return console.log(chalk.red.bold('Invalid network ID'))
+    return console.log('Network ID are not valid')
   }
 
-  const token = await getTokenBySymbol(argv.symbol)
+  const token = await getToken(argv.symbol, argv.network)
 
   if(!token) {
-    return console.log(chalk.red.bold('Token symbol is not found'))
+    return console.log('Token not found')
   }
 
   console.log(chalk.white.bold(`\n  Token information`))
   console.log('  ==========')
   console.log(`  Token name   : ${token.name}`)
   console.log(`  Symbol       : ${token.symbol}`)
-  console.log(`  Decimal      : ${token.decimals}`)
+  console.log(`  Decimals     : ${token.decimals}`)
   console.log(`  SC address   : ${chalk.white.bold(token.contractAddress)}\n`)
 
   const answers = await inquirer.prompt({
