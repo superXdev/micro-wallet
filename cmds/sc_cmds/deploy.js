@@ -5,8 +5,8 @@ const { rootPath } = require('../../utils/path')
 const { deployContract } = require('../modules/sc')
 const { importToken, formatAmount } = require('../modules/token')
 const { getNetworkById, getConnectionStatus } = require('../modules/network')
-const { isWalletExists, getWalletByName } = require('../modules/wallet')
-const { DEPLOY_ERC20 } = require('../../utils/constants')
+const { isWalletExists, getWalletByName, unlockWallet } = require('../modules/wallet')
+const { DEPLOY_ERC20, DEPLOY_CUSTOM_CONTRACT } = require('../../utils/constants')
 const { 
    getEstimateGasLimit, 
    getContractData,
@@ -21,53 +21,24 @@ const inquirer = require('inquirer')
 const crypto = require('../../utils/crypto')
 
 
-async function unlockWallet(account) {
-   const answers = await inquirer.prompt({
-      type: 'password',
-      name: 'password',
-      message: 'Enter password to continue:'
-   })
+function normalizeString(str) {
+   let result = str.replace(/([A-Z])/g,' $1')
+   result = result.charAt(0).toUpperCase() + result.slice(1)
 
-   let decryptedKey = crypto.decryptData(account.privateKey, answers.password)
-   decryptedKey = (decryptedKey.slice(0,2) == "0x") ? decryptedKey.slice(2) : decryptedKey
-
-   if(decryptedKey == "") {
-      return console.log(chalk.red.bold('Password is wrong!'))
-   }
-
-   return decryptedKey
-}
-
-
-// prototype of Number object
-Number.prototype.noExponents = function() {
-   var data = String(this).split(/[eE]/)
-   if (data.length == 1) return data[0]
-
-   var z = '',
-      sign = this < 0 ? '-' : '',
-      str = data[0].replace('.', ''),
-      mag = Number(data[1]) + 1
-
-   if (mag < 0) {
-      z = sign + '0.'
-      while (mag++) z += '0'
-      return z + str.replace(/^\-/, '')
-   }
-
-   mag -= str.length
-   while (mag--) z += '0';
-   return str + z;
+   return result
 }
 
 
 exports.command = 'deploy'
 exports.desc = 'Deploy a smart contract'
 exports.builder = {
-  source: {
+  bin: {
     type: 'string',
-    alias: 's',
     desc: 'Bytecode file of smart contract'
+  },
+  abi: {
+    type: 'string',
+    desc: 'ABI json file of smart contract'
   },
   erc20: {
     type: 'boolean',
@@ -92,42 +63,73 @@ exports.handler = async function (argv) {
    const account = await getWalletByName(argv.wallet)
    const networkData = await getNetworkById(argv.network)
 
-   const contractPath = (argv.source !== undefined) 
-      ? `./${argv.source}` 
-      : (argv.erc20 ? `${rootPath()}/contracts/ERC20Token.dat` : '')
+   const binContractPath = (argv.bin !== undefined) 
+      ? argv.bin 
+      : (argv.erc20 ? `${rootPath()}/contracts/ERC20Token.bin` : '')
 
-   if(contractPath === '') {
+   const abiContractPath = (argv.abi !== undefined) 
+      ? argv.abi 
+      : (argv.erc20 ? `${rootPath()}/contracts/ERC20Token.abi` : '')
+
+   if(binContractPath === '') {
       return console.log(chalk.yellow('Select bytecode file or type of contracts'))
    }
 
-   const questions = [
-      {
-         type: 'input',
-         name: 'name',
-         message: 'Token name:'
-      },
-      {
-         type: 'input',
-         name: 'symbol',
-         message: 'Symbol:'
-      },
-      {
-         type: 'input',
-         name: 'decimals',
-         message: 'Decimals:'
-      },
-      {
-         type: 'input',
-         name: 'totalSupply',
-         message: 'Total supply:'
+   if(abiContractPath === '') {
+      return console.log(chalk.yellow('Select ABI file or type of contracts'))
+   }
+
+   if(!fs.existsSync(binContractPath)) {
+      return console.log('The bytecode file not found')
+   }
+
+   if(!fs.existsSync(abiContractPath)) {
+      return console.log('The ABI file not found')
+   }
+
+   // read JSON from abi file
+   const jsonAbi = JSON.parse(fs.readFileSync(abiContractPath, 'utf8').toString())
+
+   let constructorQuestions = []
+
+   // checking if there is constructor arguments input
+   jsonAbi.map(data => {
+      if(data.type === 'constructor') {
+         if(data.inputs.length === 0) {
+            return
+         }
+
+         data.inputs.forEach(input => {
+            constructorQuestions.push({
+               type: 'input',
+               name: input.name,
+               message: `${normalizeString(input.name)} (${chalk.gray(input.type)}) :`
+            })
+         })
+
+         return
       }
-   ]
+   })
 
-   const tokenInfo = await inquirer.prompt(questions)
+   // constructor input data
+   let argument = {}
 
-   const totalSupply = formatAmount(tokenInfo.totalSupply, tokenInfo.decimals)
+   // if there are questions
+   if(constructorQuestions.length > 0) {
+      const contractInput = await inquirer.prompt(constructorQuestions)
 
-   const bytecode = fs.readFileSync(contractPath)
+      argument.inputs = Object.keys(contractInput).map(key => contractInput[key])
+
+      // for ERC20 template, add total supply value
+      // and token information properties to argument object
+      if(argv.erc20) {
+         argument.totalSupply = formatAmount(contractInput.totalSupply, contractInput.decimals)
+         argument.tokenInfo = contractInput
+      }
+   }
+
+
+   const bytecode = fs.readFileSync(binContractPath)
 
    let gasLimit = 0
    let gasPrice = 0
@@ -147,14 +149,20 @@ exports.handler = async function (argv) {
       {
          title: 'Estimating gas limit & price',
          task: async () => {
-
-            gasLimit = await getEstimateGasLimit({
+            const estParam = {
                rpcURL: networkData.rpcURL,
                from: account.address,
                bytecode: bytecode.toString(),
-               type: DEPLOY_ERC20,
-               arguments: [tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals, totalSupply]
-            })
+               abi: jsonAbi
+            }
+
+            estParam.type = (argv.erc20) ? DEPLOY_ERC20 : DEPLOY_CUSTOM_CONTRACT
+
+            if(argument.inputs !== undefined) {
+               estParam.arguments = argument.inputs
+            }
+
+            gasLimit = await getEstimateGasLimit(estParam)
 
             gasPrice = await getGasPrice(networkData.rpcURL)
          }
@@ -177,11 +185,18 @@ exports.handler = async function (argv) {
    
    const decryptedKey = await unlockWallet(account)
    
-   const rawData = getContractData({
+   // raw data
+   const rawDataParam = {
       rpcURL: networkData.rpcURL,
       bytecode: bytecode.toString(),
-      arguments: [tokenInfo.name, tokenInfo.symbol, tokenInfo.decimals, totalSupply]
-   })
+      abi: jsonAbi
+   }
+
+   if(argument.inputs !== undefined) {
+      rawDataParam.arguments = argument.inputs
+   }
+
+   const rawData = getContractData(rawDataParam)
 
    const txSigned = await signTransaction(txSignedParam = {
       rpcURL: networkData.rpcURL,
@@ -204,22 +219,25 @@ exports.handler = async function (argv) {
          console.log(`Explorer : ${networkData.explorerURL}/tx/${data.transactionHash}`)
          console.log()
          
-         const answers = await inquirer.prompt({
-            type: 'confirm',
-            name: 'toConfirmed',
-            message: 'Import token now?'
-         })
-
-         if(answers.toConfirmed) {
-            await importToken({
-               name: tokenInfo.name,
-               symbol: tokenInfo.symbol,
-               decimals: tokenInfo.decimals,
-               address: data.contractAddress,
-               networkId: networkData.id
+         // ask to import token for ERC20 deploy
+         if(argv.erc20) {
+            const answers = await inquirer.prompt({
+               type: 'confirm',
+               name: 'toConfirmed',
+               message: 'Import token now?'
             })
 
-            console.log(chalk.green('Token imported succussfully'))
+            if(answers.toConfirmed) {
+               await importToken({
+                  name: argument.tokenInfo.name,
+                  symbol: argument.tokenInfo.symbol,
+                  decimals: argument.tokenInfo.decimals,
+                  address: data.contractAddress,
+                  networkId: networkData.id
+               })
+
+               console.log(chalk.green('Token imported succussfully'))
+            }
          }
       })
    

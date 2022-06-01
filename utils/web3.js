@@ -11,7 +11,8 @@ const {
 	AMOUNT_ALLOWANCE,
 	SWAP_TOKEN_FOR_ETH,
 	SWAP_TOKEN_FOR_TOKEN,
-	DEPLOY_ERC20
+	DEPLOY_ERC20,
+	DEPLOY_CUSTOM_CONTRACT
 } = require('./constants')
 
 // generate new account
@@ -133,6 +134,21 @@ async function getEstimateGasLimit(data) {
 	    }).estimateGas({ from: data.from })
 	}
 
+	if(data.type === DEPLOY_CUSTOM_CONTRACT) {
+		const newContract = new web3.eth.Contract(data.abi)
+
+		const param = {
+	        data: '0x' + data.bytecode
+	    }
+
+	    if(data.arguments !== undefined){
+	    	param.arguments = data.arguments
+	    }
+
+		return await newContract.deploy(param)
+			.estimateGas({ from: data.from })
+	}
+
 	// transfer native
 	return 21000
 }
@@ -190,15 +206,20 @@ function getRawData(data) {
 	}
 }
 
-// get data for approve TOKEN or spend it
+// get data for deploy smart contract
 function getContractData(data) {
 	const web3 = new Web3(data.rpcURL)
-	const newContract = new web3.eth.Contract(erc20Abi)
+	const newContract = new web3.eth.Contract(data.abi)
 
-	return newContract.deploy({
-        data: '0x' + data.bytecode,
-        arguments: data.arguments
-    }).encodeABI()
+	const param = {
+        data: '0x' + data.bytecode
+    }
+
+    if(data.arguments !== undefined){
+    	param.arguments = data.arguments
+    }
+
+	return newContract.deploy(param).encodeABI()
 }
 
 // get current gas price

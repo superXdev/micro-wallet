@@ -6,6 +6,7 @@ const SWAP_ETH_FOR_TOKEN = "swap_eth_for_token"
 const SWAP_TOKEN_FOR_ETH = "swap_token_for_eth"
 const SWAP_TOKEN_FOR_TOKEN = "swap_token_for_token"
 const DEPLOY_ERC20 = "deploy_erc20"
+const DEPLOY_CUSTOM_CONTRACT = "deploy_custom_contract"
 
 module.exports = {
 	TRANSFER_COIN,
@@ -15,5 +16,6 @@ module.exports = {
 	SWAP_TOKEN_FOR_ETH,
 	SWAP_TOKEN_FOR_TOKEN,
 	AMOUNT_ALLOWANCE,
-	DEPLOY_ERC20
+	DEPLOY_ERC20,
+	DEPLOY_CUSTOM_CONTRACT
 }
