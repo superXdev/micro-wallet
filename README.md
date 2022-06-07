@@ -47,12 +47,13 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
   - [x] list
   - [x] remove
 - [ ] transactions history
-- [ ] ENS support
+- [x] ENS support
 - [ ] smart contract
-  - [ ] deploy
+  - [x] deploy
     - [x] ERC20
-    - [ ] custom
+    - [x] custom
   - [x] verify on explorer
+  - [ ] interaction
 - [ ] interactive menu
 - [ ] automated script transactions
 - [ ] liquidity management

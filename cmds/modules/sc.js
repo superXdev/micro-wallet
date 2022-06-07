@@ -1,5 +1,6 @@
 const fs = require('fs')
 const { getEstimateGasLimit } = require('../../utils/web3')
+const { rootPath } = require('../../utils/path')
 const axios = require('axios')
 
 
@@ -38,7 +39,8 @@ function getApiUrl(networkId, isTestnet) {
    const data = {
       BNB: {
          mainnet: 'https://api.bscscan.com/api',
-         testnet: 'https://api-testnet.bscscan.com/api'
+         testnet: 'https://api-testnet.bscscan.com/api',
+         apiKey: 'BSCSCAN_API'
       }
    }
 
@@ -48,12 +50,29 @@ function getApiUrl(networkId, isTestnet) {
 
    const typeNetwork = isTestnet ? 'testnet' : 'mainnet'
 
-   return data[networkId][typeNetwork]
+   return {
+      url: data[networkId][typeNetwork],
+      apiKey: data[networkId].apiKey
+   }
+}
+
+function findSolcVersion(ver) {
+   const data = fs.readFileSync(`${rootPath()}/cmds/modules/misc/solc-list.txt`, 'utf8')
+   const versions = data.split('\n')
+
+   const index = versions.findIndex((version) => {
+      if(version.includes(ver)) {
+         return true
+      }
+   })
+
+   return versions[index]
 }
 
 
 module.exports = {
    deployContract,
    verifyContract,
-   getApiUrl
+   getApiUrl,
+   findSolcVersion
 }
