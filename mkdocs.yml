@@ -1,5 +1,4 @@
 site_name: Microw docs
-repo_url: https://github.com/superXdev/cnotepad
 theme:
   name: material
   palette:

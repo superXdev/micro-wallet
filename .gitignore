@@ -1,6 +1,9 @@
 # package
 node_modules/
 
+# docs
+site/
+
 # test output
 .nyc_output/
 
