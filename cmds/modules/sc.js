@@ -1,4 +1,5 @@
 const fs = require('fs')
+const Web3 = require('web3')
 const { getEstimateGasLimit } = require('../../utils/web3')
 const { rootPath } = require('../../utils/path')
 const axios = require('axios')
@@ -69,10 +70,40 @@ function findSolcVersion(ver) {
    return versions[index]
 }
 
+function readAbiFile(source) {
+   return JSON.parse(fs.readFileSync(source, 'utf8').toString())
+}
+
+
+function getReadFunctions(abi) {
+   const abiData = readAbiFile(abi)
+
+   let results = abiData.filter(data => {
+      return data.type === 'function' && data.stateMutability === 'view'
+   })
+
+   return results
+}
+
+
+async function callReadFunction(data) {
+   const abiData = readAbiFile(data.abi)
+
+   const web3 = new Web3(data.rpcURL)
+
+   const contract = new web3.eth.Contract(abiData, data.address)
+
+   return await contract.methods[data.function]().call()
+}
+
+function buildInputs(inputs) {
+}
 
 module.exports = {
    deployContract,
    verifyContract,
    getApiUrl,
-   findSolcVersion
+   findSolcVersion,
+   getReadFunctions,
+   callReadFunction
 }
