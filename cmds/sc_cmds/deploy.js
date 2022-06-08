@@ -2,7 +2,7 @@ const chalk = require('chalk')
 const fs = require('fs')
 const Listr = require('listr')
 const { rootPath } = require('../../utils/path')
-const { deployContract } = require('../modules/sc')
+const { deployContract, normalizeString } = require('../modules/sc')
 const { importToken, formatAmount } = require('../modules/token')
 const { getNetworkById, getConnectionStatus } = require('../modules/network')
 const { isWalletExists, getWalletByName, unlockWallet } = require('../modules/wallet')
@@ -21,12 +21,7 @@ const inquirer = require('inquirer')
 const crypto = require('../../utils/crypto')
 
 
-function normalizeString(str) {
-   let result = str.replace(/([A-Z])/g,' $1')
-   result = result.charAt(0).toUpperCase() + result.slice(1)
 
-   return result
-}
 
 
 exports.command = 'deploy'

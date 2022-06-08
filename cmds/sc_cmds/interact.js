@@ -1,7 +1,11 @@
 const yargs = require('yargs/yargs')
 const { getNetworkById } = require('../modules/network')
 const { getWalletByName } = require('../modules/wallet')
-const { getReadFunctions, callReadFunction } = require('../modules/sc')
+const { 
+   getReadFunctions, 
+   callReadFunction,
+   buildInputs
+} = require('../modules/sc')
 const chalk = require('chalk')
 const inquirer = require('inquirer')
 const Listr = require('listr')
@@ -52,11 +56,12 @@ exports.handler = async function (argv) {
    if(selectedMenu.menu === 'Read') {
       const functions = getReadFunctions(argv.abi)
 
-      let functionChoice = []
-
-      functions.map(data => {
-         functionChoice.push(data.name)
-      })
+      const functionChoice = functions.map(data => (
+         {
+            name: data.name, 
+            inputs: data.inputs
+         }
+      ))
 
       const selectedFunction = await inquirer.prompt({
          type: 'list',
@@ -65,13 +70,26 @@ exports.handler = async function (argv) {
          choices: functionChoice
       })
 
+      const input = functionChoice.find(item => item.name === selectedFunction.function)
+
+      let functionInputs = null
+
+      if(input.inputs.length > 0) {
+         functionInputs = await inquirer.prompt(buildInputs(input.inputs))
+      }
+
       const result = await callReadFunction({
          address: argv.address,
          abi: argv.abi,
          rpcURL: networkData.rpcURL,
-         function: selectedFunction.function
+         function: selectedFunction.function,
+         inputs: functionInputs
       })
 
-      console.log(`\n${chalk.green.bold('Result :')} ${result}`)
+      if(result.success) {
+         console.log(`\n${chalk.green.bold('Result :')} ${result.data}`)
+      } else {
+         console.log(`\n${chalk.red.bold(result.data)}`)
+      }
    }
 }

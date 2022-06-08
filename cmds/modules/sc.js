@@ -1,4 +1,5 @@
 const fs = require('fs')
+const chalk = require('chalk')
 const Web3 = require('web3')
 const { getEstimateGasLimit } = require('../../utils/web3')
 const { rootPath } = require('../../utils/path')
@@ -74,6 +75,13 @@ function readAbiFile(source) {
    return JSON.parse(fs.readFileSync(source, 'utf8').toString())
 }
 
+function normalizeString(str) {
+   let result = str.replace(/([A-Z])/g,' $1')
+   result = result.charAt(0).toUpperCase() + result.slice(1)
+
+   return result
+}
+
 
 function getReadFunctions(abi) {
    const abiData = readAbiFile(abi)
@@ -87,16 +95,49 @@ function getReadFunctions(abi) {
 
 
 async function callReadFunction(data) {
-   const abiData = readAbiFile(data.abi)
+   try {
+      const abiData = readAbiFile(data.abi)
 
-   const web3 = new Web3(data.rpcURL)
+      const web3 = new Web3(data.rpcURL)
 
-   const contract = new web3.eth.Contract(abiData, data.address)
+      const contract = new web3.eth.Contract(abiData, data.address)
 
-   return await contract.methods[data.function]().call()
+      let result = {}
+
+      if(data.inputs !== null) {
+         const args = Object.values(data.inputs)
+
+         result.result = await contract.methods[data.function](...args).call()
+      }
+
+      result.data =  await contract.methods[data.function]().call()
+      result.success = true
+   } catch(err) {
+      return {
+         success: false,
+         data: err
+      }
+   }
+   
 }
 
 function buildInputs(inputs) {
+   const internalTypes = {
+      string: 'string',
+      address: 'string',
+      uint8: 'string',
+      uint256: 'string'
+   }
+
+   let results = inputs.map(data => (
+      {
+         type: 'input', 
+         name: data.name, 
+         message: `${normalizeString(data.name)} (${chalk.gray(data.type)}) :`
+      }
+   ))
+
+   return results
 }
 
 module.exports = {
@@ -105,5 +146,7 @@ module.exports = {
    getApiUrl,
    findSolcVersion,
    getReadFunctions,
-   callReadFunction
+   callReadFunction,
+   normalizeString,
+   buildInputs
 }
