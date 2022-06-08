@@ -14,14 +14,15 @@ exports.handler = async function (argv) {
    if(result.length < 1) {
       return console.log('Book address empty')
    }
+   
+   const data = result.map(data => (
+      [data.name, data.address]
+   ))
 
    const table = new Table({
       head: [chalk.white.bold('Name'), chalk.white.bold('Address')],
-      colWidths: [15, 44]
-   })
-   
-   result.map(data => {
-      table.push([data.name, data.address])
+      colWidths: [15, 44],
+      rows: data
    })
 
    console.log(table.toString())

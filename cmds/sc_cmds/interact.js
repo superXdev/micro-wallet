@@ -44,14 +44,12 @@ exports.handler = async function (argv) {
    const account = await getWalletByName(argv.wallet)
    const networkData = await getNetworkById(argv.network)
 
-   const mainMenu = {
+   const selectedMenu = await inquirer.prompt({
       type: 'list',
       name: 'menu',
       message: 'Select type function',
       choices: ['Read', 'Write']
-   }
-
-   const selectedMenu = await inquirer.prompt(mainMenu)
+   })
 
    if(selectedMenu.menu === 'Read') {
       const functions = getReadFunctions(argv.abi)
