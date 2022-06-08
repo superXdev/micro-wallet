@@ -51,6 +51,7 @@ exports.handler = async function (argv) {
       choices: ['Read', 'Write']
    })
 
+   // for read function
    if(selectedMenu.menu === 'Read') {
       const functions = getReadFunctions(argv.abi)
 
@@ -89,5 +90,8 @@ exports.handler = async function (argv) {
       } else {
          console.log(`\n${chalk.red.bold(result.data)}`)
       }
+   } else {
+      // write function
+      
    }
 }
