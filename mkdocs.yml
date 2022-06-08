@@ -2,4 +2,13 @@ site_name: Microw docs
 theme:
   name: material
   palette:
-    primary: teal
+      primary: pink
+extra:
+  social:
+    - icon: fontawesome/brands/github 
+      link: https://github.com/superXdev
+    - icon: fontawesome/solid/envelope
+      link: mailto:fikrizhanking@gmail.com
+    - icon: fontawesome/brands/twitter 
+      link: https://twitter.com/frdblock
+copyright: Copyright &copy; 2022 superXdev

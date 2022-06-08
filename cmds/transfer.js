@@ -61,6 +61,10 @@ exports.builder = (yargs) => {
       type: 'boolean',
       desc: 'For bulk transfer'
    })
+   .example([
+      ['$0 transfer ETH -d 0x0000.. -a 0.1 -w myWallet -n 1'],
+      ['$0 transfer UNI -d vitalik.eth -a 10 -w myWallet -n 1']
+   ])
 }
 
 exports.handler = async function (argv) {

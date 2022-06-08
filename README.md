@@ -3,7 +3,7 @@
 
 A simple CLI application based crypto wallet with advanced capabilities, micro-wallet supports multiple networks with the ability to make transactions between networks easy and simple with a few commands
 
-## Feature list
+## Command hierarchy
 - [x] wallet management
   - [x] list
   - [x] create
@@ -40,7 +40,7 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
   - [ ] polygon
   - [ ] avalanche
   - [ ] fantom
-  - [x] ropsten
+  - [x] goerli
 - [x] tx check
 - [x] book address
   - [x] add
@@ -54,6 +54,8 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
     - [x] custom
   - [x] verify on explorer
   - [ ] interaction
+    - [x] read
+    - [ ] write
 - [ ] interactive menu
 - [ ] automated script transactions
 - [ ] liquidity management
