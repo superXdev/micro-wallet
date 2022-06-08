@@ -19,9 +19,9 @@ async function getNetworkTable(status, isTestnet) {
       colWidths: colWidths
    });
 
-   const testnet = await getNetworkList(isTestnet)
+   const lists = await getNetworkList(isTestnet)
 
-   const promises2 = testnet.map(async row =>  {
+   const promises = lists.map(async row =>  {
       const date = new Date(row.createdAt)
       let data = []
 
@@ -46,7 +46,7 @@ async function getNetworkTable(status, isTestnet) {
       table.push(data)
    })
 
-   await Promise.all(promises2)
+   await Promise.all(promises)
 
    return table
 }

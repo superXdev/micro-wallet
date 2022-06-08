@@ -88,7 +88,7 @@ exports.handler = async function (argv) {
    let constructorQuestions = []
 
    // checking if there is constructor arguments input
-   jsonAbi.map(data => {
+   jsonAbi.forEach(data => {
       if(data.type === 'constructor') {
          if(data.inputs.length === 0) {
             return
