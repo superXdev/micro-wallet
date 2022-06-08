@@ -65,7 +65,7 @@ exports.builder = (yargs) => {
       type: 'string',
       desc: 'Wallet name or identifier'
    })
-   .option('receipt', {
+   .option('recipient', {
       alias: 'r',
       type: 'string',
       desc: 'Set for different recipient'
@@ -82,6 +82,11 @@ exports.builder = (yargs) => {
       type: 'string',
       desc: 'Set network id or identifier'
    })
+   .example([
+      ['$0 swap ETH UNI -a 0.05 -w myWallet -n 1'],
+      ['$0 swap UNI ETH -a 10 --recipient 0x0000 -w myWallet -n 1'],
+      ['$0 swap UNI ETH -a 10 --recipient 0x0000 --slippage 10 -w myWallet -n 1']
+   ])
 } 
 
 exports.handler = async function (argv) {
@@ -95,7 +100,7 @@ exports.handler = async function (argv) {
    const path = [pair[0].contractAddress, pair[1].contractAddress]
 
    // setting
-   const recipient = (argv.receipt) ? await getDestinationAddress(argv.receipt) : account.address
+   const recipient = (argv.recipient) ? await getDestinationAddress(argv.recipient) : account.address
 
    // check if recipient is valid
    if(recipient === null) {
