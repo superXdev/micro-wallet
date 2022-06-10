@@ -3,6 +3,7 @@ const web3 = require('../../utils/web3')
 const crypto = require('../../utils/crypto')
 const inquirer = require('inquirer')
 const fs = require('fs')
+const chalk = require('chalk')
 const validator = require('validator')
 const { getAddressOfEns } = require('./ens')
 

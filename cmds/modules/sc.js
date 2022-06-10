@@ -1,7 +1,16 @@
 const fs = require('fs')
 const chalk = require('chalk')
 const Web3 = require('web3')
-const { getEstimateGasLimit } = require('../../utils/web3')
+const { unlockWallet } = require('./wallet')
+const { 
+   getEstimateGasLimit, 
+   getGasPrice,
+   fromWeiToEther,
+   fromWeiToGwei,
+   fromEtherToWei,
+   sendingTransaction,
+   signTransaction
+} = require('../../utils/web3')
 const { rootPath } = require('../../utils/path')
 const axios = require('axios')
 
@@ -93,6 +102,15 @@ function getReadFunctions(abi) {
    return results
 }
 
+function getWriteFunctions(abi) {
+   const abiData = readAbiFile(abi)
+
+   let results = abiData.filter(data => {
+      return data.type === 'function' && data.stateMutability !== 'view'
+   })
+
+   return results
+}
 
 async function callReadFunction(data) {
    try {
@@ -112,6 +130,8 @@ async function callReadFunction(data) {
 
       result.data =  await contract.methods[data.function]().call()
       result.success = true
+
+      return result
    } catch(err) {
       return {
          success: false,
@@ -119,6 +139,101 @@ async function callReadFunction(data) {
       }
    }
    
+}
+
+async function callWriteFunction(data) {
+   try{
+      // get JSON of abi from file
+      const abiData = readAbiFile(data.abi)
+
+      // web3 instances
+      const web3 = new Web3(data.network.rpcURL)
+
+      // smart contract instances
+      const contract = new web3.eth.Contract(abiData, data.address)
+
+      // declare result & method variable
+      let result = {}
+      let method = null
+
+      // if inputs not zero or null
+      if(data.inputs !== null) {
+         // convert inputs object to array
+         const args = Object.values(data.inputs)
+         args.pop()
+
+         method = contract.methods[data.function](...args)
+      } else {
+         method = contract.methods[data.function]()
+      }
+
+      // estimate gas limit
+      const gasLimit = await method.estimateGas({
+         from: data.account.address, 
+         value: fromEtherToWei(data.inputs.value_)
+      })
+
+      // estimate gas price
+      const gasPrice = await getGasPrice(data.network.rpcURL)
+
+      // encode method data
+      const rawData = method.encodeABI()
+
+      // calculate total fee from gas price * gas limit
+      const totalFee = fromWeiToEther(gasPrice * gasLimit).substr(0, 12)
+
+      // show details before proceed the transaction
+      console.log(chalk.white.bold(`\n  Transaction details`))
+      console.log('  ==========')
+      console.log(`  Sender    : ${data.account.address}`)
+      console.log(`  Gas limit : ${gasLimit}`)
+      console.log(`  Gas price : ${chalk.gray(fromWeiToGwei(gasPrice))} gwei`)
+      console.log(`  Total fee : ${chalk.gray(totalFee)} ${data.network.currencySymbol}`)
+      console.log()
+
+      // unlock wallet to get decrypted private key
+      const decryptedKey = await unlockWallet(data.account)
+
+      const txSigned = await signTransaction({
+         rpcURL: data.network.rpcURL,
+         from: data.account.address,
+         destination: data.address,
+         value: fromEtherToWei(data.inputs.value_),
+         gasLimit: gasLimit,
+         gasPrice: gasPrice,
+         chainId: data.network.chainId,
+         useData: true,
+         data: rawData,
+         privateKey: decryptedKey
+      })
+
+      console.log('\nSending transaction into blockchain')
+
+      result.data = await sendingTransaction(txSigned, data.network.rpcURL)
+      result.success = true
+
+
+      return result
+   } catch(err) {
+      if(err.toString().includes('insufficient funds')) {
+         return {
+            success: false,
+            data: 'insufficient funds'
+         }
+      }
+
+      if(err.toString().includes('execution reverted')) {
+         return {
+            success: false,
+            data: 'execution reverted'
+         }
+      }
+
+      return {
+         success: false,
+         data: err
+      }
+   }
 }
 
 function buildInputs(inputs) {
@@ -148,5 +263,7 @@ module.exports = {
    getReadFunctions,
    callReadFunction,
    normalizeString,
-   buildInputs
+   buildInputs,
+   getWriteFunctions,
+   callWriteFunction
 }

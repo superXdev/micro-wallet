@@ -2,8 +2,10 @@ const yargs = require('yargs/yargs')
 const { getNetworkById } = require('../modules/network')
 const { getWalletByName } = require('../modules/wallet')
 const { 
-   getReadFunctions, 
+   getReadFunctions,
+   getWriteFunctions, 
    callReadFunction,
+   callWriteFunction,
    buildInputs
 } = require('../modules/sc')
 const chalk = require('chalk')
@@ -74,6 +76,7 @@ exports.handler = async function (argv) {
       let functionInputs = null
 
       if(input.inputs.length > 0) {
+         console.log(chalk.magenta('Input is required'))
          functionInputs = await inquirer.prompt(buildInputs(input.inputs))
       }
 
@@ -92,6 +95,51 @@ exports.handler = async function (argv) {
       }
    } else {
       // write function
-      
+      const functions = getWriteFunctions(argv.abi)
+
+      const functionChoice = functions.map(data => (
+         {
+            name: data.name, 
+            inputs: data.inputs
+         }
+      ))
+
+      const selectedFunction = await inquirer.prompt({
+         type: 'list',
+         name: 'function',
+         message: 'Write function',
+         choices: functionChoice
+      })
+
+      const input = functionChoice.find(item => item.name === selectedFunction.function)
+
+      let functionInputs = null
+
+      if(input.inputs.length > 0) {
+         console.log(chalk.magenta('Input is required'))
+         functionInputs = await inquirer.prompt([
+            ...buildInputs(input.inputs),
+            {
+               type: 'input',
+               name: 'value_',
+               message: `Value (${chalk.yellow(networkData.currencySymbol)})`
+            }        
+         ])
+      }
+
+      const result = await callWriteFunction({
+         account: account,
+         network: networkData,
+         address: argv.address,
+         abi: argv.abi,
+         function: selectedFunction.function,
+         inputs: functionInputs
+      })
+
+      if(!result.success) {
+         console.log(`Error : ${chalk.red.bold(result.data)}`)
+      } else {
+         console.log(`Hash : ${chalk.cyan(result.data.transactionHash)}`)
+      }
    }
 }
