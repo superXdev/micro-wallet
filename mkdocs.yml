@@ -1,4 +1,4 @@
-site_name: Microw docs
+site_name: Micro wallet
 markdown_extensions:
   - def_list
   - pymdownx.tasklist:

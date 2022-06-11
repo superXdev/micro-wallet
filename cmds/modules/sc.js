@@ -121,14 +121,16 @@ async function callReadFunction(data) {
       const contract = new web3.eth.Contract(abiData, data.address)
 
       let result = {}
+      let method = null
 
       if(data.inputs !== null) {
          const args = Object.values(data.inputs)
-
-         result.result = await contract.methods[data.function](...args).call()
+         method = contract.methods[data.function](...args)
+      } else {
+         method = contract.methods[data.function]()
       }
 
-      result.data =  await contract.methods[data.function]().call()
+      result.data =  await method.call() 
       result.success = true
 
       return result

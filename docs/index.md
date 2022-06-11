@@ -1,4 +1,5 @@
 # Getting started
+---
 This is official documentation of Micro Wallet, any information from this site can be improve or changed anytime from everyone who want contribute to this project.
 
 ## Introduction

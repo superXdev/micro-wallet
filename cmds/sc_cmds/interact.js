@@ -41,6 +41,32 @@ exports.builder = {
 }
 
 
+async function inputs(argv, write = true) {
+   const functions = (write) ? getWriteFunctions(argv.abi) : getReadFunctions(argv.abi)
+
+   const functionChoice = functions.map(data => (
+      {
+         name: data.name, 
+         inputs: data.inputs
+      }
+   ))
+
+   const selectedFunction = await inquirer.prompt({
+      type: 'list',
+      name: 'function',
+      message: 'Write function',
+      choices: functionChoice
+   })
+
+   // return selected function
+   return [
+      functionChoice.find(item => item.name === selectedFunction.function),
+      selectedFunction
+   ]
+
+}
+
+
 exports.handler = async function (argv) {
    // get account & network
    const account = await getWalletByName(argv.wallet)
@@ -55,91 +81,63 @@ exports.handler = async function (argv) {
 
    // for read function
    if(selectedMenu.menu === 'Read') {
-      const functions = getReadFunctions(argv.abi)
+      while(true) {
+         const input = await inputs(argv, false)
 
-      const functionChoice = functions.map(data => (
-         {
-            name: data.name, 
-            inputs: data.inputs
+         let functionInputs = null
+
+         if(input[0].inputs.length > 0) {
+            console.log(chalk.magenta('Input is required'))
+            functionInputs = await inquirer.prompt(buildInputs(input[0].inputs))
          }
-      ))
 
-      const selectedFunction = await inquirer.prompt({
-         type: 'list',
-         name: 'function',
-         message: 'Read function',
-         choices: functionChoice
-      })
+         const result = await callReadFunction({
+            address: argv.address,
+            abi: argv.abi,
+            rpcURL: networkData.rpcURL,
+            function: input[1].function,
+            inputs: functionInputs
+         })
 
-      const input = functionChoice.find(item => item.name === selectedFunction.function)
-
-      let functionInputs = null
-
-      if(input.inputs.length > 0) {
-         console.log(chalk.magenta('Input is required'))
-         functionInputs = await inquirer.prompt(buildInputs(input.inputs))
-      }
-
-      const result = await callReadFunction({
-         address: argv.address,
-         abi: argv.abi,
-         rpcURL: networkData.rpcURL,
-         function: selectedFunction.function,
-         inputs: functionInputs
-      })
-
-      if(result.success) {
-         console.log(`\n${chalk.green.bold('Result :')} ${result.data}`)
-      } else {
-         console.log(`\n${chalk.red.bold(result.data)}`)
+         if(result.success) {
+            console.log(`${chalk.green.bold('Result :')} ${result.data}`)
+         } else {
+            console.log(`${chalk.red.bold(result.data)}`)
+         }
       }
    } else {
       // write function
-      const functions = getWriteFunctions(argv.abi)
+      while(true) {
+         const input = await inputs(argv)
+      
+         let functionInputs = null
 
-      const functionChoice = functions.map(data => (
-         {
-            name: data.name, 
-            inputs: data.inputs
+         if(input[0].inputs.length > 0) {
+            console.log(chalk.magenta('Input is required'))
+            functionInputs = await inquirer.prompt([
+               ...buildInputs(input[0].inputs),
+               {
+                  type: 'input',
+                  name: 'value_',
+                  message: `Value (${chalk.yellow(networkData.currencySymbol)})`
+               }        
+            ])
          }
-      ))
 
-      const selectedFunction = await inquirer.prompt({
-         type: 'list',
-         name: 'function',
-         message: 'Write function',
-         choices: functionChoice
-      })
+         const result = await callWriteFunction({
+            account: account,
+            network: networkData,
+            address: argv.address,
+            abi: argv.abi,
+            function: input[1].function,
+            inputs: functionInputs
+         })
 
-      const input = functionChoice.find(item => item.name === selectedFunction.function)
-
-      let functionInputs = null
-
-      if(input.inputs.length > 0) {
-         console.log(chalk.magenta('Input is required'))
-         functionInputs = await inquirer.prompt([
-            ...buildInputs(input.inputs),
-            {
-               type: 'input',
-               name: 'value_',
-               message: `Value (${chalk.yellow(networkData.currencySymbol)})`
-            }        
-         ])
-      }
-
-      const result = await callWriteFunction({
-         account: account,
-         network: networkData,
-         address: argv.address,
-         abi: argv.abi,
-         function: selectedFunction.function,
-         inputs: functionInputs
-      })
-
-      if(!result.success) {
-         console.log(`Error : ${chalk.red.bold(result.data)}`)
-      } else {
-         console.log(`Hash : ${chalk.cyan(result.data.transactionHash)}`)
+         if(!result.success) {
+            console.log(`Error : ${chalk.red.bold(result.data)}`)
+         } else {
+            console.log(`Hash : ${chalk.cyan(result.data.transactionHash)}`)
+         }
       }
    }
 }
