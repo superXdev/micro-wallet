@@ -46,12 +46,12 @@ This is current features or list all of command & plan for the future.
 	- [x] remove
 - [ ] transactions history
 - [x] ENS support
-- [ ] smart contract
+- [x] smart contract
 	- [x] deploy
 		- [x] ERC20
 		- [x] custom
 	- [x] verify on explorer
-	- [ ] interaction
+	- [x] interaction
 		- [x] read
 	    - [x] write
 - [ ] interactive menu
