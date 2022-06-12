@@ -13,8 +13,10 @@ exports.builder = (yargs) => {
       desc: 'Spesified network ID'
    })
    .example([
-      ['$0 history'],
-      ['$0 history -w myWallet -n 1']
+      ['$0 history', 'show all history'],
+      ['$0 history -w myWallet', 'show only for spesified wallet'],
+      ['$0 history -n 1', 'show only for spesified network'],
+      ['$0 history -w myWallet -n 1', 'show only for spesified wallet & network']
    ])
 }
 

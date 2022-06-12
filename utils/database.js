@@ -122,6 +122,25 @@ const Book = sequelize.define('book', {
   }
 })
 
+const History = sequelize.define('history', {
+  type: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  wallet: {
+    type: DataTypes.STRING,
+    allowNull: false
+  },
+  hash: {
+    type: DataTypes.TEXT,
+    allowNull: false
+  },
+  networkId: {
+    type: DataTypes.NUMBER,
+    allowNull: false
+  }
+})
+
 Network.hasMany(Token, { as: 'tokens' })
 Token.belongsTo(Network, {
   foreignKey: "networkId",
