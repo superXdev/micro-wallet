@@ -7,10 +7,12 @@ exports.command = 'history'
 exports.desc = 'Show latest transaction history'
 exports.builder = (yargs) => {
    yargs.option('wallet', {
+      alias: 'w',
       type: 'string',
       desc: 'Spesified wallet identifier'
    })
    .option('network', {
+      alias: 'n',
       type: 'string',
       desc: 'Spesified network ID'
    })
@@ -23,11 +25,37 @@ exports.builder = (yargs) => {
 }
 
 exports.handler = async function (argv) {
-   const result = await History.findAll({ 
+   let query = { 
       limit: 10,
       order: [ ['createdAt', 'DESC'] ]
-   })
+   }
 
+   if(argv.wallet && argv.network) {
+      // if specified wallet & network
+      query.where = {
+         wallet: argv.wallet,
+         networkId: argv.network
+      }
+   } else {
+      // wallet only
+      if(argv.wallet) {
+         query.where = {
+            wallet: argv.wallet
+         }
+      }
+      
+      // network only
+      if(argv.network) {
+         query.where = {
+            networkId: argv.network
+         }
+      }
+   }
+
+   // get history data
+   const result = await History.findAll(query)
+   
+   // check result length
    if(result.length < 1) {
       return console.log('History empty')
    }
