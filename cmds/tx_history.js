@@ -1,5 +1,7 @@
 const yargs = require('yargs/yargs')
 const chalk = require('chalk')
+const Table = require('cli-table')
+const { History } = require('../utils/database')
 
 exports.command = 'history'
 exports.desc = 'Show latest transaction history'
@@ -20,6 +22,29 @@ exports.builder = (yargs) => {
    ])
 }
 
-exports.handler = function (argv) {
+exports.handler = async function (argv) {
+   const result = await History.findAll({ 
+      limit: 10,
+      order: [ ['createdAt', 'DESC'] ]
+   })
 
+   if(result.length < 1) {
+      return console.log('History empty')
+   }
+   
+   const data = result.map(data => (
+      [data.id, data.type, data.hash]
+   ))
+
+   const table = new Table({
+      head: [
+         chalk.white.bold('ID'), 
+         chalk.white.bold('Type'), 
+         chalk.white.bold('Hash')
+      ],
+      colWidths: [5, 15, 68],
+      rows: data
+   })
+
+   console.log(table.toString())
 }

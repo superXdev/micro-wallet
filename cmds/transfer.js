@@ -20,9 +20,10 @@ const {
    sendingTransaction,
    fromWeiToGwei,
    fromWeiToEther,
-   getTxHash
+   getTxHash,
+   fromEtherToWei
 } = require('../utils/web3')
-
+const { History } = require('../utils/database')
 
 
 exports.command = 'transfer [symbol]'
@@ -180,8 +181,6 @@ exports.handler = async function (argv) {
    if(isNativeTransfer)
       console.log(`  Total     : ${chalk.yellow(total)} ${networkData.currencySymbol}\n`)
 
-   console.log()
-
    // unlock wallet to get decrypted private key
    const decryptedKey = await unlockWallet(account)
 
@@ -194,7 +193,7 @@ exports.handler = async function (argv) {
          rpcURL: networkData.rpcURL,
          destination: destination,
          from: account.address,
-         value: argv.amount,
+         value: fromEtherToWei(argv.amount),
          gasLimit: gasLimit,
          gasPrice: gasPrice,
          chainId: networkData.chainId,
@@ -219,6 +218,15 @@ exports.handler = async function (argv) {
    console.log('Sending transaction into blockchain')
    sendingTransaction(txSigned, networkData.rpcURL)
       .on('receipt', function(data) {
+         // insert to history transaction
+         History.create({
+            type: 'TRANSFER',
+            wallet: account.name,
+            hash: data.transactionHash,
+            networkId: networkData.id
+         })
+
+         // show tx hash
          console.log(`Hash     : ${chalk.cyan(data.transactionHash)}`)
          console.log(`Explorer : ${networkData.explorerURL}/tx/${data.transactionHash}`)
       })

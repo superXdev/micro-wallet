@@ -154,5 +154,6 @@ module.exports = {
   Token,
   Provider,
   Pair,
-  Book
+  Book,
+  History
 }
