@@ -11,7 +11,7 @@ exports.command = 'import'
 exports.desc = 'Import wallet with private key or file.'
 exports.builder = {
   json: {
-    type: 'string',
+    type: 'array',
     alias: 'f',
     desc: 'Import using JSON file format'
   },
@@ -21,17 +21,21 @@ exports.builder = {
 exports.handler = async function (argv) {
    // if export using JSON file
    if(argv.json) {
-      const account = JSON.parse(fs.readFileSync(argv.json).toString())
+      const promises = argv.json.map(async fileName => {
+         const account = JSON.parse(fs.readFileSync(fileName).toString())
 
-      const walletExists = await isWalletExists(account.walletName)
-      if(walletExists) {
-         return console.log('Wallet name already exists')
-      }
+         const walletExists = await isWalletExists(account.walletName)
+         if(walletExists) {
+            return console.log('Wallet name already exists')
+         }
 
-      // import wallet
-      await importWallet(account)
+         // import wallet
+         await importWallet(account)
+      })
 
-      return console.log(chalk.green('Successfully imported'))
+      await Promise.all(promises)
+
+      return console.log(chalk.green(`${argv.json.length} wallet imported`))
    }
 
    const questions = [
