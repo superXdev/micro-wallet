@@ -58,6 +58,12 @@ exports.handler = async function (argv) {
 
    // if with tx ID
    if(opts.network === undefined) {
+      // if tx value is hash
+      // show warn message 
+      if(argv.tx.match(/^0x[a-fA-F0-9]{64}$/g)) {
+         return console.log('Network identifier is required')
+      }
+
       const tx = await History.findByPk(argv.tx)
 
       opts.network = tx.networkId
