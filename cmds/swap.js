@@ -21,6 +21,7 @@ const {
    fromWeiToGwei,
    getRawData
 } = require('../utils/web3')
+const { History } = require('../utils/database')
 const crypto = require('../utils/crypto')
 const BigNumber = require('bignumber.js')
 const inquirer = require('inquirer')
@@ -341,5 +342,12 @@ exports.handler = async function (argv) {
       .on('receipt', function(data) {
          console.log(`Hash     : ${chalk.cyan(data.transactionHash)}`)
          console.log(`Explorer : ${networkData.explorerURL}/tx/${data.transactionHash}`)
+
+			History.create({
+				wallet: account.name,
+				hash: data.transactionHash,
+				networkId: networkData.id,
+            type: 'SWAP'
+			})
       })
 }
