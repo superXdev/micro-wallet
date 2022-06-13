@@ -11,6 +11,7 @@ const {
 const chalk = require('chalk')
 const inquirer = require('inquirer')
 const Listr = require('listr')
+const { History } = require('../../utils/database')
 
 
 exports.command = 'interact'
@@ -138,6 +139,14 @@ exports.handler = async function (argv) {
          } else {
             console.log(`Hash : ${chalk.cyan(result.data.transactionHash)}`)
          }
+
+         // insert to history transaction
+         History.create({
+            type: 'WRITE SC',
+            wallet: account.name,
+            hash: result.data.transactionHash,
+            networkId: networkData.id
+         })
       }
    }
 }

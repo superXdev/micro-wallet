@@ -29,3 +29,10 @@ You need to run this command first before using a whole command of micro wallet
 ```bash
 microw setup
 ```
+
+!!! note
+
+    To see details for usage of all command, type `--help` flag, for example
+    ```bash
+    microw setup --help
+    ```
