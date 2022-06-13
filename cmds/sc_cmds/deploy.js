@@ -19,7 +19,7 @@ const {
 const BigNumber = require('bignumber.js')
 const inquirer = require('inquirer')
 const crypto = require('../../utils/crypto')
-
+const { History } = require('../../utils/database')
 
 
 
@@ -213,6 +213,14 @@ exports.handler = async function (argv) {
          console.log(`Hash     : ${chalk.cyan(data.transactionHash)}`)
          console.log(`Explorer : ${networkData.explorerURL}/tx/${data.transactionHash}`)
          console.log()
+
+         // insert to history transaction
+         History.create({
+            type: 'DEPLOY',
+            wallet: account.name,
+            hash: data.transactionHash,
+            networkId: networkData.id
+         })
          
          // ask to import token for ERC20 deploy
          if(argv.erc20) {
