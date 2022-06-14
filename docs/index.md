@@ -18,6 +18,7 @@ Micro wallet support with many network, include testnet network also
 - Cronos
 - Celo
 
+
 ## Setup & configuration
 Before you can use micro wallet, you must install it through npm application (nodejs package manager)
 
