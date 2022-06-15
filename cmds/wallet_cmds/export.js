@@ -4,18 +4,22 @@ const inquirer = require('inquirer')
 
 
 exports.command = 'export'
-exports.desc = 'Export wallet to private key.'
-exports.builder = {
-  name: {
+exports.desc = 'Export wallet to private key or JSON file.'
+exports.builder = (yargs) => {
+  yargs.option('name', {
     demand: true,
     type: 'string',
     alias: 'n',
     desc: 'Set your wallet name or identifier'
-  },
-  json: {
+  })
+  .option('json', {
     type: 'boolean',
     desc: 'Export encrypted wallet to json file'
-  },
+  })
+  .example([
+      ['$0 wallet export -n myWallet', 'Show the private key only'],
+      ['$0 wallet export -n myWallet --json', 'export into JSON file format']
+   ])
 }
 
 exports.handler = async function (argv) {
