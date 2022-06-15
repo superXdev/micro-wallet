@@ -5,13 +5,16 @@ const { createWallet, isWalletExists } = require('../modules/wallet')
 
 exports.command = 'create'
 exports.desc = 'Create new wallet or account.'
-exports.builder = {
-  name: {
+exports.builder = (yargs) => {
+  yargs.option('name', {
     demand: true,
     type: 'string',
     alias: 'n',
     desc: 'Set your wallet name or identifier'
-  },
+  })
+  .example([
+    ['$0 wallet create -n myWallet']
+  ])
 }
 
 exports.handler = async function (argv) {
