@@ -4,18 +4,22 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.superfences
   - def_list
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.tasklist:
       custom_checkbox: true
 theme:
   name: material
   palette:
-      primary: pink
+      primary: teal
+  features:
+    - search.highlight
 extra:
+  alternate:
+    - name: English
+      link: / 
+      lang: en
+    - name: Indonesia
+      link: /id
+      lang: id
   social:
     - icon: fontawesome/brands/github 
       link: https://github.com/superXdev
