@@ -9,12 +9,16 @@ const inquirer = require('inquirer')
 
 exports.command = 'import'
 exports.desc = 'Import wallet with private key or file.'
-exports.builder = {
-  json: {
+exports.builder = (yargs) => {
+  yargs.option('json', {
     type: 'array',
     alias: 'f',
     desc: 'Import using JSON file format'
-  },
+  })
+  .example([
+      ['$0 wallet import', 'Import wallet using private key'],
+      ['$0 wallet import --json', 'Import wallet using JSON file']
+   ])
 }
 
 
