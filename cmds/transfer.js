@@ -3,7 +3,13 @@ const inquirer = require('inquirer')
 const validator = require('validator')
 const Listr = require('listr')
 const { getWalletByName, getDestinationAddress, unlockWallet } = require('./modules/wallet')
-const { getToken, formatAmount, formatMoney } = require('./modules/token')
+const { 
+	getToken, 
+	formatAmount, 
+	formatMoney,
+	getBalance,
+	formatAmountNormal
+} = require('./modules/token')
 const { 
    getNetworkList, 
    getNetworkById, 
@@ -21,7 +27,8 @@ const {
    fromWeiToGwei,
    fromWeiToEther,
    getTxHash,
-   fromEtherToWei
+   fromEtherToWei,
+	getNativeBalance
 } = require('../utils/web3')
 const { History } = require('../utils/database')
 
@@ -97,19 +104,25 @@ exports.handler = async function (argv) {
    // estimate gas fee & sign transaction
    let gasLimit = 0
    let gasPrice = 0
+	let balance = 0
    let rawData = null
    let contractAddress = null
    const tasks = new Listr([
       {
-         title: 'Checking connection...',
+         title: 'Checking balance...',
          task: async (ctx, task) => {
-            // checking connection if ok
-            // process will be continue
-            const status = await getConnectionStatus(networkData.rpcURL)
+				// get balance
 
-            if(status === null) {
-                throw new Error('Connection failed')
-            }
+				if(isNativeTransfer) {
+					balance = await getNativeBalance(account.address, networkData.rpcURL)
+				} else {
+					balance = await getBalance({
+						rpcURL: networkData.rpcURL,
+						contractAddress: tokenData.contractAddress,
+						owner: account.address
+					})
+				}
+
          }
       },
       {
@@ -167,11 +180,14 @@ exports.handler = async function (argv) {
    // sum from total fee + amount
    let total = parseFloat(totalFee) + parseFloat(argv.amount)
    total = (total < 1) ? total.toFixed(10) : total.toFixed(5)
+	// convert balance format
+	balance = (isNativeTransfer) ? fromWeiToEther(balance) : formatAmountNormal(balance, tokenData.decimals)
 
    // show details before proceed the transaction
    console.log(chalk.white.bold(`\n  Transaction details`))
    console.log('  ==========')
    console.log(`  Amount    : ${chalk.magenta(formatMoney(argv.amount))} ${argv.symbol}`)
+   console.log(`  Available : ${chalk.yellow(balance)} ${argv.symbol} `)
    console.log(`  Sender    : ${account.address}`)
    console.log(`  Receipt   : ${destination}`)
    console.log(`  Gas limit : ${gasLimit}`)
