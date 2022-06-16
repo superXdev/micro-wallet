@@ -22,9 +22,9 @@ Display all of registered network
 microw network list
 ```
 
-| Option            | Type       				   | Description                             |
+| Option            | Type       				      | Description                             |
 | ----------------- | ---------------------------- |---------------------------------------- |
-| `-s`, `--status`  | **string** 				   | Show connection status for all networks |
+| `-s`, `--status`  | **string** 				      | Show connection status for all networks |
 | `-t`, `--type`    | **string** (default=mainnet) | Spesific type of network to show   	 |
 
 
