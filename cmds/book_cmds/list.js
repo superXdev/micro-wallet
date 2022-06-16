@@ -3,10 +3,8 @@ const { getAll } = require('../modules/book')
 const Table = require('cli-table')
 
 
-
 exports.command = 'list'
 exports.desc = 'Show all of book address'
-
 
 exports.handler = async function (argv) {
    const result = await getAll()

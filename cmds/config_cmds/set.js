@@ -13,6 +13,9 @@ exports.builder = (yargs) => {
    yargs.positional('value', {
       type: 'string'
    })
+	.example([
+		['$0 config set ETHERSCAN_API XXXXXXXXXXXX']
+	])
 }
 
 exports.handler = function (argv) {
