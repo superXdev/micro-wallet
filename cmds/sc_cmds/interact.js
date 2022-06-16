@@ -16,29 +16,32 @@ const { History } = require('../../utils/database')
 
 exports.command = 'interact'
 exports.desc = 'Interaction with a smart contract'
-exports.builder = {
-   address: {
+exports.builder = (yargs) => {
+   yargs.option('address', {
       demand: true,
       type: 'string',
       alias: 'a',
       desc: 'Contract address'
-   },
-   abi: {
+   })
+   option('abi', {
       type: 'string',
       desc: 'ABI json file of smart contract'
-   },
-   wallet: {
+   })
+   .option('wallet', {
       demand: true,
       type: 'string',
       alias: 'w',
       desc: 'Wallet ID or identifier'
-   },
-   network: {
+   })
+   .option('network', {
       demand: true,
       type: 'number',
       alias: 'n',
       desc: 'Set network id or identifier'
-   },
+   })
+	.example([
+		['$0 sc interact --abi contract.abi -a 0x00000000000 -w myWallet -n 1']
+	])
 }
 
 
