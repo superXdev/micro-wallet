@@ -23,7 +23,7 @@ exports.builder = (yargs) => {
       alias: 'a',
       desc: 'Contract address'
    })
-   option('abi', {
+   .option('abi', {
       type: 'string',
       desc: 'ABI json file of smart contract'
    })
@@ -47,6 +47,10 @@ exports.builder = (yargs) => {
 
 async function inputs(argv, write = true) {
    const functions = (write) ? getWriteFunctions(argv.abi) : getReadFunctions(argv.abi)
+
+	if(functions === null) {
+		return null 
+	}
 
    const functionChoice = functions.map(data => (
       {
@@ -88,6 +92,10 @@ exports.handler = async function (argv) {
       while(true) {
          const input = await inputs(argv, false)
 
+			if(input === null) {
+				return console.log('ABI file not valid')
+			}
+
          let functionInputs = null
 
          if(input[0].inputs.length > 0) {
@@ -114,6 +122,10 @@ exports.handler = async function (argv) {
       while(true) {
          const input = await inputs(argv)
       
+			if(input === null) {
+				return console.log('ABI file not valid')
+			}
+
          let functionInputs = null
 
          if(input[0].inputs.length > 0) {

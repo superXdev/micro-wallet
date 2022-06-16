@@ -67,6 +67,15 @@ function getApiUrl(networkId, isTestnet) {
    }
 }
 
+function isJsonValid(abi) {
+	try {
+		JSON.parse(abi)
+		return true
+	} catch {
+		return false
+	}
+}
+
 function findSolcVersion(ver) {
    const data = fs.readFileSync(`${rootPath()}/cmds/modules/misc/solc-list.txt`, 'utf8')
    const versions = data.split('\n')
@@ -81,7 +90,7 @@ function findSolcVersion(ver) {
 }
 
 function readAbiFile(source) {
-   return JSON.parse(fs.readFileSync(source, 'utf8').toString())
+   return fs.readFileSync(source, 'utf8').toString()
 }
 
 function normalizeString(str) {
@@ -95,6 +104,10 @@ function normalizeString(str) {
 function getReadFunctions(abi) {
    const abiData = readAbiFile(abi)
 
+	if(!isJsonValid(abiData)) {
+		return null
+	}
+
    let results = abiData.filter(data => {
       return data.type === 'function' && data.stateMutability === 'view'
    })
@@ -104,6 +117,10 @@ function getReadFunctions(abi) {
 
 function getWriteFunctions(abi) {
    const abiData = readAbiFile(abi)
+
+	if(!isJsonValid(abiData)) {
+		return null
+	}
 
    let results = abiData.filter(data => {
       return data.type === 'function' && data.stateMutability !== 'view'
