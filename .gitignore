@@ -7,6 +7,9 @@ site/
 # test output
 .nyc_output/
 
+# cache file
+cache.json
+
 # local database or config
 user.db
 user.test.db

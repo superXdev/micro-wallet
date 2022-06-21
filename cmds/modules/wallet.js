@@ -1,11 +1,13 @@
 const { Wallet, Book } = require('../../utils/database')
 const web3 = require('../../utils/web3')
 const crypto = require('../../utils/crypto')
+const { rootPath } = require('../../utils/path')
 const inquirer = require('inquirer')
 const fs = require('fs')
 const chalk = require('chalk')
 const validator = require('validator')
 const { getAddressOfEns } = require('./ens')
+const Cache = require('node-file-cache')
 
 
 // get list of all wallet
@@ -16,19 +18,63 @@ async function getWalletList() {
 }
 
 // unlock wallet to get decrypted private key
-async function unlockWallet(account) {
-   const answers = await inquirer.prompt({
-      type: 'password',
-      name: 'password',
-      message: 'Enter password to continue:'
+async function unlockWallet(account, argv) {
+	// file cache instances
+	const cache = Cache.create({
+      file: `${rootPath()}/cache.json`,
+      life: 1800
    })
 
-   let decryptedKey = crypto.decryptData(account.privateKey, answers.password)
+   let decryptedKey = null
+   let password = null
+	
+	const cachePass = cache.get(account.name)
+
+	if(cachePass) {
+      if(!argv.yes) {
+         const confirm = await inquirer.prompt({
+            type: 'confirm',
+            name: 'answer',
+            message: 'Confirm the transaction?'
+         })
+
+         if(!confirm.answer) {
+            return null
+         }
+      }
+
+		decryptedKey = crypto.decryptData(account.privateKey, cachePass)
+	} else {
+		const answers = await inquirer.prompt({
+			type: 'password',
+			name: 'password',
+			message: 'Enter password to continue:'
+		})
+
+		decryptedKey = crypto.decryptData(account.privateKey, answers.password)
+		password = answers.password
+	}
+
    decryptedKey = (decryptedKey.slice(0,2) == "0x") ? decryptedKey.slice(2) : decryptedKey
 
    if(decryptedKey == "") {
       return console.log(chalk.red.bold('Password is wrong!'))
    }
+	
+	// asking if user want save temporary password
+	if(password) {
+		const tempPassword = await inquirer.prompt({
+			type: 'confirm',
+			name: 'answer',
+			message: 'Stop asking password for 30 minutes?'
+		})
+		
+		// if the answer is yes
+		// store tempPassword to cache file
+		if(tempPassword.answer) {
+			cache.set(account.name, password)
+		}
+	}
 
    return decryptedKey
 }

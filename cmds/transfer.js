@@ -82,7 +82,6 @@ exports.handler = async function (argv) {
    const networkData = await getNetworkById(argv.network)
    // get destination
    let destination = await getDestinationAddress(argv.destination, networkData.rpcURL)
-
    // invalid destination
    if(destination === null) {
       return console.log('Destination identifier is not valid')
@@ -173,7 +172,6 @@ exports.handler = async function (argv) {
 
    // run tasks to check connection & estimate gas fee
    await tasks.run()
-
    // calculate total fee from gas price * gas limit
    // and convert to ether format
    const totalFee = fromWeiToEther(gasPrice * gasLimit).substr(0, 12)
@@ -181,7 +179,7 @@ exports.handler = async function (argv) {
    let total = parseFloat(totalFee) + parseFloat(argv.amount)
    total = (total < 1) ? total.toFixed(10) : total.toFixed(5)
 	// convert balance format
-	balance = (isNativeTransfer) ? fromWeiToEther(balance) : formatAmountNormal(balance, tokenData.decimals)
+	balance = (isNativeTransfer) ? balance : formatAmountNormal(balance, tokenData.decimals)
 
    // show details before proceed the transaction
    console.log(chalk.white.bold(`\n  Transaction details`))
@@ -198,7 +196,11 @@ exports.handler = async function (argv) {
       console.log(`  Total     : ${chalk.yellow(total)} ${networkData.currencySymbol}\n`)
 
    // unlock wallet to get decrypted private key
-   const decryptedKey = await unlockWallet(account)
+   const decryptedKey = await unlockWallet(account, argv)
+
+   if(!decryptedKey) {
+      return console.log('Transaction aborted')
+   }
 
    console.log()
 

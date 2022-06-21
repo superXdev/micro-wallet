@@ -12,6 +12,11 @@ yargs
          borderStyle: 'bold'
       }))
    })
+   .option('yes', {
+      alias: 'y',
+      type: 'boolean',
+      desc: 'Automatically answer "yes" to any prompts'
+   })
    .commandDir('cmds')
    .demandCommand()
    .help()
