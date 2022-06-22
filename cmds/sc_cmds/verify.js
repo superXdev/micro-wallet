@@ -1,6 +1,6 @@
 const chalk = require('chalk')
 const fs = require('fs')
-const { verifyContract, getApiUrl, findSolcVersion } = require('../modules/sc')
+const { verifyContract, getApiKey, findSolcVersion } = require('../modules/sc')
 const { getNetworkById } = require('../modules/network')
 const config = require('../../config.json')
 const { rootPath } = require('../../utils/path')
@@ -47,11 +47,10 @@ exports.builder = {
 
 exports.handler = async function (argv) {
 	const networkData = await getNetworkById(argv.network)
-	const url = getApiUrl(networkData.currencySymbol, networkData.isTestnet)
 	const compilerVersion = findSolcVersion(argv.compiler)
 
 	// API url is null or not available
-	if(url === null) {
+	if(networkData.apiURL === null) {
 		return console.log('API not available for this network')
 	}
 
@@ -59,9 +58,9 @@ exports.handler = async function (argv) {
 	// collection of default smart contract parameters
 	const contractDefault = {
 		erc20: {
-			url: url.url,
+			url: networkData.apiURL,
 			sourceCode: fs.readFileSync(`${rootPath()}/contracts/ERC20Token.sol`).toString(),
-			apiKey: config.BSCSCAN_API,
+			apiKey: getApiKey(networkData.currencySymbol),
 			address: argv.address,
 			contractName: 'ERC20Token',
 			compilerversion: 'v0.8.14+commit.80d49f37',
@@ -92,9 +91,9 @@ exports.handler = async function (argv) {
 
 		// custom source
 		params = {
-			url: url.url,
+			url: networkData.apiURL,
 			sourceCode: fs.readFileSync(argv.source, 'utf8').toString(),
-			apiKey: config[url.apiKey],
+			apiKey: getApiKey(networkData.currencySymbol),
 			address: argv.address,
 			compilerversion: compilerVersion,
 			contractName: argv.contract,
@@ -106,7 +105,7 @@ exports.handler = async function (argv) {
 	const result = await verifyContract(params)
 
 	// show result if successfull
-	if(result.data.message === 'OK') {
+	if(result.data.message === 'OK' || result.data.message === '0') {
 		console.log(chalk.green('Successfully submitted, it will processed between 30 seconds'))
 	} else {
 		// show error message

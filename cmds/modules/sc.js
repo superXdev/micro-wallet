@@ -46,25 +46,19 @@ async function verifyContract(data) {
 }
 
 
-function getApiUrl(networkId, isTestnet) {
+function getApiKey(symbol) {
    const data = {
-      BNB: {
-         mainnet: 'https://api.bscscan.com/api',
-         testnet: 'https://api-testnet.bscscan.com/api',
-         apiKey: 'BSCSCAN_API'
-      }
+      BNB: 'BSCSCAN_API',
+      ETH: 'ETHERSCAN_API'
    }
 
-   if(data[networkId] === undefined) {
+   if(data[symbol] === undefined) {
       return null
    }
 
-   const typeNetwork = isTestnet ? 'testnet' : 'mainnet'
+   const config = JSON.parse(fs.readFileSync(`${rootPath()}/config.json`, 'utf8').toString())
 
-   return {
-      url: data[networkId][typeNetwork],
-      apiKey: data[networkId].apiKey
-   }
+   return config[data[symbol]]
 }
 
 function isJsonValid(abi) {
@@ -277,7 +271,7 @@ function buildInputs(inputs) {
 module.exports = {
    deployContract,
    verifyContract,
-   getApiUrl,
+   getApiKey,
    findSolcVersion,
    getReadFunctions,
    callReadFunction,
