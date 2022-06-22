@@ -160,7 +160,7 @@ async function callReadFunction(data) {
    
 }
 
-async function callWriteFunction(data) {
+async function callWriteFunction(data, argv) {
    try{
       // get JSON of abi from file
       const abiData = readAbiFile(data.abi)
@@ -211,7 +211,7 @@ async function callWriteFunction(data) {
       console.log()
 
       // unlock wallet to get decrypted private key
-      const decryptedKey = await unlockWallet(data.account)
+      const decryptedKey = await unlockWallet(data.account, argv)
 
       const txSigned = await signTransaction({
          rpcURL: data.network.rpcURL,

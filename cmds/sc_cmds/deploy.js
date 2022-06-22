@@ -182,7 +182,7 @@ exports.handler = async function (argv) {
 	console.log()
 
 
-	const decryptedKey = await unlockWallet(account)
+	const decryptedKey = await unlockWallet(account, argv)
 
 	// raw data
 	const rawDataParam = {

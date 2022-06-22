@@ -147,7 +147,7 @@ exports.handler = async function (argv) {
             abi: argv.abi,
             function: input[1].function,
             inputs: functionInputs
-         })
+         }, argv)
 
          if(!result.success) {
             console.log(`Error : ${chalk.red.bold(result.data)}`)

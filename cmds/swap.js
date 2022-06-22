@@ -182,7 +182,7 @@ exports.handler = async function (argv) {
       // approve first if allowance is not enough
       if(parseFloat(inputTransaction.allowance) < parseFloat(formatAmount(argv.amount, pair[0].decimals))) {
          console.log(chalk.white.bgBlue('\nNeed to approve token'))
-         decryptedKey = await unlockWallet(account)
+         decryptedKey = await unlockWallet(account, argv)
 
          await new Listr([{
             title: 'Approving token for the first time.',
