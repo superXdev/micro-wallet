@@ -14,15 +14,17 @@ exports.builder = {
   }
 }
 exports.handler = async function (argv) {
-   const answers = await inquirer.prompt({
-      type: 'confirm',
-      name: 'toConfirmed',
-      message: 'Are you sure?',
-      default: false
-   })
+   if(!argv.yes) {
+      const answers = await inquirer.prompt({
+         type: 'confirm',
+         name: 'toConfirmed',
+         message: 'Are you sure?',
+         default: false
+      })
 
-   if(!answers.toConfirmed) {
-      return
+      if(!answers.toConfirmed) {
+         return
+      }
    }
 
    const isExists = await isWalletExists(argv.name)

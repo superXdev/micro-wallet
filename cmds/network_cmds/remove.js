@@ -24,15 +24,18 @@ exports.handler = async function (argv) {
    const network = await getNetworkById(argv.network)
 
    console.log(`Remove network: ${chalk.yellow(network.networkName)}`)
-   const answers = await inquirer.prompt({
-      type: 'confirm',
-      name: 'toConfirmed',
-      message: 'Are you sure?',
-      default: false
-   })
+   
+   if(!argv.yes) {
+      const answers = await inquirer.prompt({
+         type: 'confirm',
+         name: 'toConfirmed',
+         message: 'Are you sure?',
+         default: false
+      })
 
-   if(!answers.toConfirmed) {
-      return console.log('Canceled by user')
+      if(!answers.toConfirmed) {
+         return console.log('Canceled by user')
+      }
    }
 
    const result = await removeNetwork(argv.network)

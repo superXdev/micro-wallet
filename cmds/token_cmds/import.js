@@ -72,15 +72,17 @@ exports.handler = async function (argv) {
    console.log(`  Decimal      : ${tokenInfo.decimals}`)
    console.log(`  Total supply : ${totalSupply}\n`)
 
-   const answers = await inquirer.prompt({
-      type: 'confirm',
-      name: 'toConfirmed',
-      message: 'Import token?',
-      default: false
-   })
+   if(!argv.yes) {
+      const answers = await inquirer.prompt({
+         type: 'confirm',
+         name: 'toConfirmed',
+         message: 'Import token?',
+         default: false
+      })
 
-   if(!answers.toConfirmed) {
-      return
+      if(!answers.toConfirmed) {
+         return console.log('Canceled by user')
+      }
    }
 
    const result = await importToken({
