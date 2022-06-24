@@ -60,21 +60,30 @@ async function unlockWallet(account, argv) {
    if(decryptedKey == "") {
       return console.log(chalk.red.bold('Password is wrong!'))
    }
+
+   // when password already saved to cache file
+   // just return decrypted key
+   if(!password) {
+      return decryptedKey
+   }
 	
 	// asking if user want save temporary password
-	if(password) {
-		const tempPassword = await inquirer.prompt({
-			type: 'confirm',
-			name: 'answer',
-			message: 'Stop asking password for 30 minutes?'
-		})
-		
-		// if the answer is yes
-		// store tempPassword to cache file
-		if(tempPassword.answer) {
-			cache.set(account.name, password)
-		}
-	}
+	if(argv.yes){
+      // store tempPassword to cache file
+      cache.set(account.name, password)
+      return decryptedKey
+   }
+
+   const tempPassword = await inquirer.prompt({
+      type: 'confirm',
+      name: 'answer',
+      message: 'Stop asking password for 30 minutes?'
+   })
+   
+   if(tempPassword.answer) {
+      // store tempPassword to cache file
+      cache.set(account.name, password)
+   }
 
    return decryptedKey
 }

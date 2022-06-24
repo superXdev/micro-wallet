@@ -228,23 +228,27 @@ exports.handler = async function (argv) {
 
 			// ask to import token for ERC20 deploy
 			if(argv.erc20) {
-				const answers = await inquirer.prompt({
-					type: 'confirm',
-					name: 'toConfirmed',
-					message: 'Import token now?'
-				})
-
-				if(answers.toConfirmed) {
-					await importToken({
-						name: argument.tokenInfo.name,
-						symbol: argument.tokenInfo.symbol,
-						decimals: argument.tokenInfo.decimals,
-						address: data.contractAddress,
-						networkId: networkData.id
+				if(!argv.yes) {
+					const answers = await inquirer.prompt({
+						type: 'confirm',
+						name: 'toConfirmed',
+						message: 'Import token now?'
 					})
 
-					console.log(chalk.green('Token imported succussfully'))
+					if(!answers.toConfirmed) {
+						process.exit(0)
+					}
 				}
+
+				await importToken({
+					name: argument.tokenInfo.name,
+					symbol: argument.tokenInfo.symbol,
+					decimals: argument.tokenInfo.decimals,
+					address: data.contractAddress,
+					networkId: networkData.id
+				})
+
+				console.log(chalk.green('Token imported succussfully'))
 			}
 		})
 

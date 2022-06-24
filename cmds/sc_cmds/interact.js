@@ -6,7 +6,8 @@ const {
    getWriteFunctions, 
    callReadFunction,
    callWriteFunction,
-   buildInputs
+   buildInputs,
+   getAbiOnline
 } = require('../modules/sc')
 const chalk = require('chalk')
 const inquirer = require('inquirer')
@@ -45,8 +46,11 @@ exports.builder = (yargs) => {
 }
 
 
-async function inputs(argv, write = true) {
-   const functions = (write) ? getWriteFunctions(argv.abi) : getReadFunctions(argv.abi)
+async function inputs(argv, write = true, networkData) {
+   const functions = (write) 
+      ? await getWriteFunctions(argv, networkData) 
+      : await getReadFunctions(argv, networkData)
+
 
 	if(functions === null) {
 		return null 
@@ -62,7 +66,7 @@ async function inputs(argv, write = true) {
    const selectedFunction = await inquirer.prompt({
       type: 'list',
       name: 'function',
-      message: 'Write function',
+      message: `${write ? 'Write' : 'Read'} function`,
       choices: functionChoice
    })
 
@@ -90,10 +94,10 @@ exports.handler = async function (argv) {
    // for read function
    if(selectedMenu.menu === 'Read') {
       while(true) {
-         const input = await inputs(argv, false)
+         const input = await inputs(argv, false, networkData)
 
 			if(input === null) {
-				return console.log('ABI file not valid')
+				return console.log('ABI file not valid or not found')
 			}
 
          let functionInputs = null
@@ -104,9 +108,9 @@ exports.handler = async function (argv) {
          }
 
          const result = await callReadFunction({
+            network: networkData,
             address: argv.address,
             abi: argv.abi,
-            rpcURL: networkData.rpcURL,
             function: input[1].function,
             inputs: functionInputs
          })
@@ -120,10 +124,10 @@ exports.handler = async function (argv) {
    } else {
       // write function
       while(true) {
-         const input = await inputs(argv)
+         const input = await inputs(argv, true, networkData)
       
 			if(input === null) {
-				return console.log('ABI file not valid')
+				return console.log('ABI file not valid or not found')
 			}
 
          let functionInputs = null
@@ -145,6 +149,7 @@ exports.handler = async function (argv) {
             network: networkData,
             address: argv.address,
             abi: argv.abi,
+            apiURL: networkData.apiURL,
             function: input[1].function,
             inputs: functionInputs
          }, argv)
@@ -153,15 +158,15 @@ exports.handler = async function (argv) {
             console.log(`Error : ${chalk.red.bold(result.data)}`)
          } else {
             console.log(`Hash : ${chalk.cyan(result.data.transactionHash)}`)
+            // insert to history transaction
+            History.create({
+               type: 'WRITE SC',
+               wallet: account.name,
+               hash: result.data.transactionHash,
+               networkId: networkData.id
+            })
          }
-
-         // insert to history transaction
-         History.create({
-            type: 'WRITE SC',
-            wallet: account.name,
-            hash: result.data.transactionHash,
-            networkId: networkData.id
-         })
+         
       }
    }
 }

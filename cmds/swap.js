@@ -131,18 +131,6 @@ exports.handler = async function (argv) {
    // tasks to checking connection & balance
    const tasks = new Listr([
       {
-         title: 'Checking connection...',
-         task: async (ctx, task) => {
-            // checking connection if ok
-            // process will be continue
-            const status = await getConnectionStatus(networkData.rpcURL)
-
-            if(status === null) {
-                throw new Error('Connection failed')
-            }
-         }
-      },
-      {
          title: 'Checking balance & allowance',
          task: async (ctx, task) => {
             if(isFromNative) {
@@ -289,7 +277,7 @@ exports.handler = async function (argv) {
 
    // ask password to unlock wallet
    if(decryptedKey === null) {
-      decryptedKey = await unlockWallet(account)
+      decryptedKey = await unlockWallet(account, argv)
    } else {
       const answers = await inquirer.prompt({
          type: 'confirm',

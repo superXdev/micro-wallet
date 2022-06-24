@@ -45,6 +45,15 @@ async function verifyContract(data) {
    return result
 }
 
+async function getAbiOnline(address, network) {
+   const apiKey = getApiKey(network.currencySymbol)
+   const data = await axios.get(
+      `${network.apiURL}?module=contract&action=getabi&address=${address}&format=raw&apiKey=${apiKey}`
+      )
+
+   return data.data
+}
+
 
 function getApiKey(symbol) {
    const data = {
@@ -95,28 +104,38 @@ function normalizeString(str) {
 }
 
 
-function getReadFunctions(abi) {
-   const abiData = readAbiFile(abi)
+async function getReadFunctions(argv, network) {
+   let abiData = null
+   if(argv.abi === undefined) {
+      abiData = await getAbiOnline(argv.address, network)
+   } else {
+      abiData = readAbiFile(argv.abi)
+   }
 
-	if(!isJsonValid(abiData)) {
+	if(!isJsonValid(abiData) && argv.abi !== undefined) {
 		return null
 	}
 
-   let results = abiData.filter(data => {
+   let results = JSON.parse(abiData).filter(data => {
       return data.type === 'function' && data.stateMutability === 'view'
    })
 
    return results
 }
 
-function getWriteFunctions(abi) {
-   const abiData = readAbiFile(abi)
+async function getWriteFunctions(argv, network) {
+   let abiData = null
+   if(argv.abi === undefined) {
+      abiData = await getAbiOnline(argv.address, network)
+   } else {
+      abiData = readAbiFile(argv.abi)
+   }
 
-	if(!isJsonValid(abiData)) {
+	if(!isJsonValid(abiData) && argv.abi !== undefined) {
 		return null
 	}
 
-   let results = abiData.filter(data => {
+   let results = JSON.parse(abiData).filter(data => {
       return data.type === 'function' && data.stateMutability !== 'view'
    })
 
@@ -125,9 +144,14 @@ function getWriteFunctions(abi) {
 
 async function callReadFunction(data) {
    try {
-      const abiData = readAbiFile(data.abi)
+      let abiData = null
+      if(data.abi === undefined) {
+         abiData = await getAbiOnline(data.address, data.network)
+      } else {
+         abiData = JSON.parse(readAbiFile(data.abi))
+      }
 
-      const web3 = new Web3(data.rpcURL)
+      const web3 = new Web3(data.network.rpcURL)
 
       const contract = new web3.eth.Contract(abiData, data.address)
 
@@ -156,8 +180,12 @@ async function callReadFunction(data) {
 
 async function callWriteFunction(data, argv) {
    try{
-      // get JSON of abi from file
-      const abiData = readAbiFile(data.abi)
+      let abiData = null
+      if(data.abi === undefined) {
+         abiData = await getAbiOnline(data.address, data.network)
+      } else {
+         abiData = JSON.parse(readAbiFile(data.abi))
+      }
 
       // web3 instances
       const web3 = new Web3(data.network.rpcURL)
@@ -278,5 +306,6 @@ module.exports = {
    normalizeString,
    buildInputs,
    getWriteFunctions,
-   callWriteFunction
+   callWriteFunction,
+   getAbiOnline
 }
