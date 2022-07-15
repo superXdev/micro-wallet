@@ -11,6 +11,12 @@ const providerDefaultData = [
       contractAddress: "0x10ed43c718714eb63d5aa57b78b54704e256024e",
       networkId: 4
    },
+   // sushiswap Polygon
+   {
+      providerName: "Sushiswap",
+      contractAddress: "0x1b02dA8Cb0d097eB8D57A175b88c7D8b47997506",
+      networkId: 2
+   },
    // sushiswap testnet
    {
       providerName: "Sushiswap Testnet",
@@ -21,6 +27,20 @@ const providerDefaultData = [
 
 const pairDefaultData = [
    // mainnet token
+   {
+      name: "Wrapped Matic",
+      symbol: "MATIC",
+      contractAddress: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+      decimals: 18,
+      networkId: 2
+   },
+   {
+      name: "USD Coin",
+      symbol: "USDC",
+      contractAddress: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174",
+      decimals: 6,
+      networkId: 2
+   },
    {
       name: "Wrapped BNB",
       symbol: "BNB",
