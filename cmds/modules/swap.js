@@ -41,13 +41,13 @@ async function getProviderByNetwork(id) {
 	})
 }
 
-async function getPairBySymbol(data) {
+async function getPairSwap(data) {
 	const a = await Pair.findOne({
-		where: { symbol: data.a }
+		where: { symbol: data.a, networkId: data.networkId }
 	})
 
 	const b = await Pair.findOne({
-		where: { symbol: data.b }
+		where: { symbol: data.b, networkId: data.networkId }
 	})
 
 	return [
@@ -107,7 +107,7 @@ async function approveToken(data) {
 module.exports = {
 	getMinOut,
 	getProviderByNetwork,
-	getPairBySymbol,
+	getPairSwap,
 	calcFinalMinOut,
 	getAmountsIn,
 	approveToken

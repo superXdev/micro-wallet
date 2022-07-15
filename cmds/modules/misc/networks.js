@@ -2,7 +2,7 @@ exports.networks = [
    // mainnet network
    {
       networkName: "Ethereum",
-      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/eth/mainnet",
+      rpcURL: "https://mainnet.infura.io/v3/7699ff9dd25b4694bc711ca3abcdec3d",
       currencySymbol: "ETH",
       explorerURL: "https://etherscan.io",
       apiURL: "https://api.etherscan.io/api",
@@ -11,7 +11,7 @@ exports.networks = [
    },
    {
       networkName: "Polygon Mainnet",
-      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/polygon/mainnet",
+      rpcURL: "https://polygon-rpc.com",
       currencySymbol: "MATIC",
       explorerURL: "https://polygonscan.com",
       chainId: 137,
@@ -19,7 +19,7 @@ exports.networks = [
    },
    {
       networkName: "Avalanche C-Chain",
-      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/avalanche/mainnet",
+      rpcURL: "https://api.avax.network/ext/bc/C/rpc",
       currencySymbol: "AVAX",
       explorerURL: "https://snowtrace.io",
       chainId: 43114,
@@ -27,7 +27,7 @@ exports.networks = [
    },
    {
       networkName: "Binance Smart Chain",
-      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/bsc/mainnet",
+      rpcURL: "https://bsc-dataseed1.defibit.io/",
       currencySymbol: "BNB",
       explorerURL: "https://bscscan.com",
       apiURL: 'https://api.bscscan.com/api',
@@ -44,7 +44,7 @@ exports.networks = [
    },
    {
       networkName: "Fantom Opera",
-      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/fantom/mainnet",
+      rpcURL: "https://rpc.ankr.com/fantom/",
       currencySymbol: "FTM",
       explorerURL: "https://ftmscan.com",
       chainId: 250,
@@ -70,7 +70,7 @@ exports.networks = [
    // testnet network
    {
       networkName: "Polygon Testnet Mumbai",
-      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/polygon/mumbai",
+      rpcURL: "https://rpc-mumbai.maticvigil.com",
       currencySymbol: "MATIC",
       explorerURL: "https://mumbai.polygonscan.com",
       chainId: 80001,
@@ -87,7 +87,7 @@ exports.networks = [
    },
    {
       networkName: "Avalanche Fuji Testnet",
-      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/avalanche/testnet",
+      rpcURL: "https://api.avax-test.network/ext/bc/C/rpc",
       currencySymbol: "AVAX",
       explorerURL: "https://testnet.snowtrace.io",
       chainId: 43113,
@@ -95,7 +95,7 @@ exports.networks = [
    },
    {
       networkName: "Binance Smart Chain Testnet",
-      rpcURL: "https://speedy-nodes-nyc.moralis.io/41082737c6efda05b1118010/bsc/testnet",
+      rpcURL: "https://data-seed-prebsc-1-s1.binance.org:8545/",
       currencySymbol: "BNB",
       explorerURL: "https://testnet.bscscan.com",
       apiURL: 'https://api-testnet.bscscan.com/api',

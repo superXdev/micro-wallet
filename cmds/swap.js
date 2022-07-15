@@ -5,7 +5,7 @@ const { getDestinationAddress, getWalletByName, unlockWallet } = require('./modu
 const { 
   getMinOut, 
   getProviderByNetwork,
-  getPairBySymbol,
+  getPairSwap,
   calcFinalMinOut,
   getAmountsIn,
   approveToken
@@ -97,7 +97,7 @@ exports.handler = async function (argv) {
 
    // swap provider & path direction
    const provider = await getProviderByNetwork(argv.network)
-   const pair = await getPairBySymbol({ a: argv.from, b: argv.to })
+   const pair = await getPairSwap({ a: argv.from, b: argv.to, networkId: argv.network })
    const path = [pair[0].contractAddress, pair[1].contractAddress]
 
    // setting
