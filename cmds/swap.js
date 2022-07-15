@@ -95,8 +95,14 @@ exports.handler = async function (argv) {
    const account = await getWalletByName(argv.wallet)
    const networkData = await getNetworkById(argv.network)
 
-   // swap provider & path direction
+   // swap provider
    const provider = await getProviderByNetwork(argv.network)
+
+   // check if provider is not exists
+   if(provider === null) {
+      return console.log('Swap provider not available')
+   }
+
    const pair = await getPairSwap({ a: argv.from, b: argv.to, networkId: argv.network })
    const path = [pair[0].contractAddress, pair[1].contractAddress]
 
