@@ -5,6 +5,12 @@ const fs = require('fs')
 
 
 const providerDefaultData = [
+   // pancakeswap
+   {
+      providerName: "Pancakeswap",
+      contractAddress: "0x10ed43c718714eb63d5aa57b78b54704e256024e",
+      networkId: 4
+   },
    // sushiswap testnet
    {
       providerName: "Sushiswap Testnet",
@@ -14,6 +20,21 @@ const providerDefaultData = [
 ]
 
 const pairDefaultData = [
+   // mainnet token
+   {
+      name: "Wrapped BNB",
+      symbol: "BNB",
+      contractAddress: "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c",
+      decimals: 18,
+      networkId: 4
+   },
+   {
+      name: "Binance-Peg BUSD",
+      symbol: "BUSD",
+      contractAddress: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+      decimals: 18,
+      networkId: 4
+   },
    // testnet token
    {
       name: "Wrapped Ether",
