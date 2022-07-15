@@ -5,9 +5,15 @@ const fs = require('fs')
 
 
 const providerDefaultData = [
+   // uniswap (ETH)
+   {
+      providerName: "Uniswap V2",
+      contractAddress: "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D",
+      networkId: 1
+   },
    // pancakeswap
    {
-      providerName: "Pancakeswap",
+      providerName: "Pancakeswap V2",
       contractAddress: "0x10ed43c718714eb63d5aa57b78b54704e256024e",
       networkId: 4
    },
@@ -27,6 +33,27 @@ const providerDefaultData = [
 
 const pairDefaultData = [
    // mainnet token
+   {
+      name: "Wrapped Ether",
+      symbol: "ETH",
+      contractAddress: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+      decimals: 18,
+      networkId: 1
+   },
+   {
+      name: "Tether USD",
+      symbol: "USDT",
+      contractAddress: "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+      decimals: 6,
+      networkId: 1
+   },
+   {
+      name: "Dai Stablecoin",
+      symbol: "DAI",
+      contractAddress: "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+      decimals: 18,
+      networkId: 1
+   },
    {
       name: "Wrapped Matic",
       symbol: "MATIC",
