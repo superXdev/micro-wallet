@@ -104,7 +104,7 @@ exports.networks = [
    },
    {
       networkName: "Fantom testnet",
-      rpcURL: "https://rpc.testnet.fantom.network/",
+      rpcURL: "https://rpc.ankr.com/fantom_testnet",
       currencySymbol: "FTM",
       explorerURL: "https://testnet.ftmscan.com",
       chainId: 4002,

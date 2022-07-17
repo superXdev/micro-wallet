@@ -5,6 +5,7 @@ const {
    formatAmountNormal,
    formatMoney
 } = require('../modules/token')
+const { getBalance } = require('../modules/balance')
 const { getWalletByName } = require('../modules/wallet')
 const { getNetworkById } = require('../modules/network')
 const web3 = require('../../utils/web3')

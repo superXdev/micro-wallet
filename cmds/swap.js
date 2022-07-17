@@ -104,6 +104,11 @@ exports.handler = async function (argv) {
    }
 
    const pair = await getPairSwap({ a: argv.from, b: argv.to, networkId: argv.network })
+
+   if(pair === null) {
+      return console.log('Target coin or token not found\nimport it first if token')
+   }
+
    const path = [pair[0].contractAddress, pair[1].contractAddress]
 
    // setting

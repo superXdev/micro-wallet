@@ -122,7 +122,10 @@ exports.handler = async function (argv) {
 		// for ERC20 template, add total supply value
 		// and token information properties to argument object
 		if(argv.erc20) {
-			argument.totalSupply = formatAmount(contractInput.totalSupply, contractInput.decimals)
+			const totalSupplyNumber = formatAmount(contractInput.totalSupply, contractInput.decimals)
+
+			argument.inputs[3] =  totalSupplyNumber
+			argument.totalSupply =  totalSupplyNumber
 			argument.tokenInfo = contractInput
 		}
 	}

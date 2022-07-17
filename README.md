@@ -35,9 +35,9 @@ A simple CLI application based crypto wallet with advanced capabilities, micro-w
   - [x] balance
   - [x] remove
 - [ ] swap for each networks
-  - [ ] ethereum
-  - [ ] bsc
-  - [ ] polygon
+  - [x] ethereum
+  - [x] bsc
+  - [x] polygon
   - [ ] avalanche
   - [ ] fantom
   - [x] goerli

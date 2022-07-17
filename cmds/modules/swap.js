@@ -1,5 +1,5 @@
 const Web3 = require('web3')
-const { Provider, Pair } = require('../../utils/database')
+const { Provider, Pair, Token } = require('../../utils/database')
 const web3 = require('../../utils/web3')
 const swapAbi = require('../../abi/swapv2.json')
 const BigNumber = require('bignumber.js')
@@ -42,13 +42,29 @@ async function getProviderByNetwork(id) {
 }
 
 async function getPairSwap(data) {
-	const a = await Pair.findOne({
+	let a = await Pair.findOne({
 		where: { symbol: data.a, networkId: data.networkId }
 	})
 
-	const b = await Pair.findOne({
+	let b = await Pair.findOne({
 		where: { symbol: data.b, networkId: data.networkId }
 	})
+
+	if(a === null) {
+		a = await Token.findOne({
+			where: { symbol: data.a, networkId: data.networkId }
+		})
+
+		if(a === null) return null
+	}
+
+	if(b === null) {
+		b = await Token.findOne({
+			where: { symbol: data.b, networkId: data.networkId }
+		})
+
+		if(b === null) return null
+	}
 
 	return [
 		{ 
